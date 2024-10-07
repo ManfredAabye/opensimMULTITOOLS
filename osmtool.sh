@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.0.1559" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.0.1561" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -10791,6 +10791,50 @@ function installopensimulator() {
 function ubuntuprowerbung() {
 	# Ubuntu Pro Werbung abschalten:
 	sudo dpkg-divert --divert /etc/apt/apt.conf.d/20apt-esm-hook.conf.bak --rename --local /etc/apt/apt.conf.d/20apt-esm-hook.conf
+}
+
+# Bash Skript: Ändere oder Füge in der Datei /etc/environment eine Zeile MONO_THREADS_PER_CPU=1024 hinzu wenn dieser noch nicht eingetragen ist.
+function mtpcpu() { 
+    # Datei, in der die Variable gesetzt werden soll
+    file="/etc/environment"
+
+    # Variable und Wert, die überprüft und gegebenenfalls hinzugefügt werden sollen
+    variable="MONO_THREADS_PER_CPU=1024"
+
+    # Prüfen, ob die Variable bereits in der Datei vorhanden ist
+    if grep -q "^${variable}$" "$file"; then
+        echo "Die Variable ${variable} ist bereits in der Datei vorhanden."
+    else
+        echo "Die Variable ${variable} wird hinzugefügt."
+        # Zeile am Ende der Datei hinzufügen
+        echo "$variable" | sudo tee -a "$file" > /dev/null
+        echo "Die Variable ${variable} wurde erfolgreich hinzugefügt."
+    fi
+}
+
+# Bash Skript: Ändere oder Füge in der Datei /etc/mysql/conf.d/mysqldump.cnf eine Zeile max_allowed_packet=2147483648 hinzu wenn dieser noch nicht eingetragen ist.
+function maxdump() { 
+	# Datei, in der die Variable gesetzt werden soll
+	file="/etc/mysql/conf.d/mysqldump.cnf"
+
+	# Variable und Wert, die überprüft und gegebenenfalls hinzugefügt werden sollen
+	variable="max_allowed_packet=2147483648"
+
+	# Prüfen, ob die Datei existiert
+	if [ ! -f "$file" ]; then
+		echo "Die Datei $file existiert nicht. Erstelle die Datei."
+		sudo touch "$file"
+	fi
+
+	# Prüfen, ob die Variable bereits in der Datei vorhanden ist
+	if grep -q "^${variable}$" "$file"; then
+		echo "Die Variable ${variable} ist bereits in der Datei vorhanden."
+	else
+		echo "Die Variable ${variable} wird hinzugefügt."
+		# Zeile am Ende der Datei hinzufügen
+		echo "$variable" | sudo tee -a "$file" > /dev/null
+		echo "Die Variable ${variable} wurde erfolgreich hinzugefügt."
+	fi
 }
 
 ## * installubuntu22
@@ -25020,6 +25064,8 @@ case $KOMMANDO in
 	db_create_database_table) db_create_database_table "$2" "$3" "$4" "$5" ;;
 	osslEnableCreator) osslEnableCreator ;;
 	upgrade18to22) upgrade18to22 ;;
+	maxdump) maxdump ;;
+	mtpcpu) mtpcpu ;;
 	h) newhelp ;;
 	V | v) echo "$SCRIPTNAME $VERSION" ;;
 	*) hauptmenu ;;
