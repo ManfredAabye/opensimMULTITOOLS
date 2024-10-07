@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.0.1558" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.0.1559" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -10976,7 +10976,7 @@ function serverinstallfull() {
 	# Aufräumen nicht mehr benötigter Pakete
 	# Das Skript kann interaktiv durchgearbeitet werden, wobei der Benutzer die Kontrolle über die einzelnen Schritte behält.
 ##
-function upgrade18to22() {
+function upgrade18to22_V1() {
 	echo "Bitte stellen Sie sicher, dass Ihre Daten gesichert wurden."
 
 	# Abfrage, ob Systemmanagementtools deaktiviert werden sollen
@@ -11104,6 +11104,161 @@ EOF
 	fi
 
 	echo "Upgrade auf Ubuntu 22.04 abgeschlossen!"
+}
+
+function upgrade18to22() {
+    echo "Upgrade von Ubuntu 18.04 auf Ubuntu 22.04 LTS wird gestartet."
+
+    # 1. Bestätigen des Upgrades
+    echo "Sind alle Daten gesichert? (y/n): "; read -r confirm_backup
+    if [ "$confirm_backup" != "y" ]; then
+        echo "Bitte sichern Sie Ihre Daten und starten Sie das Skript erneut."
+        return 1
+    fi
+
+    # 2. Deaktivieren von Systemmanagementtools
+    echo "Möchten Sie Puppet und Cron deaktivieren? (y/n): "; read -r confirm_disable
+    if [ "$confirm_disable" == "y" ]; then
+        echo "Deaktiviere Puppet und Cron..."
+        puppet agent --disable
+        systemctl stop cron
+    fi
+
+    # 3. Prüfen des freien Speicherplatzes
+    echo "Überprüfen des freien Speicherplatzes..."
+    df -h
+    echo "Ist genügend Speicherplatz für das Upgrade vorhanden? (y/n): "; read -r confirm_space
+    if [ "$confirm_space" != "y" ]; then
+        echo "Bitte bereinigen Sie Speicherplatz und starten Sie das Skript erneut."
+        return 1
+    fi
+
+    # 4. Sichern der Liste installierter Pakete
+    echo "Möchten Sie die Liste der installierten Pakete sichern? (y/n): "; read -r confirm_pkg_backup
+    if [ "$confirm_pkg_backup" == "y" ]; then
+        echo "Sichere installierte Pakete..."
+        dpkg --get-selections > installed-packages-$(date +%F).txt
+    fi
+
+    # 5. Überprüfen und ggf. Deaktivieren von Drittanbieter-Repositories (PPA)
+    echo "Möchten Sie PPAs deaktivieren? (y/n): "; read -r confirm_ppa
+    if [ "$confirm_ppa" == "y" ]; then
+        echo "PPAs deaktivieren..."
+        for ppa in /etc/apt/sources.list.d/*.list; do
+            sudo mv "$ppa" "$ppa.disabled"
+        done
+    fi
+
+    # 6. Auswahl der Paketquellen (Standard oder Contabo)
+    echo "Welche Paketquellen möchten Sie verwenden?"
+    echo "1) Standard Ubuntu Quellen"
+    echo "2) Contabo Quellen"
+    echo "Wählen Sie 1 oder 2: "; read -r repo_choice
+
+    if [ "$repo_choice" == "1" ]; then
+        # Ubuntu-Standardquellen
+        echo "Verwenden der Standard-Ubuntu-Quellen für Ubuntu 22.04..."
+        sed -i 's/focal/jammy/' /etc/apt/sources.list
+    elif [ "$repo_choice" == "2" ]; then
+        # Contabo-Quellen
+        echo "Verwenden der Contabo-Quellen für Ubuntu 22.04..."
+        cat <<EOL > /etc/apt/sources.list
+deb http://asi-fs-n.contabo.net/ubuntu jammy main restricted
+deb http://asi-fs-n.contabo.net/ubuntu jammy-updates main restricted
+deb http://asi-fs-n.contabo.net/ubuntu jammy universe
+deb http://asi-fs-n.contabo.net/ubuntu jammy-updates universe
+deb http://asi-fs-n.contabo.net/ubuntu jammy multiverse
+deb http://asi-fs-n.contabo.net/ubuntu jammy-updates multiverse
+deb http://asi-fs-n.contabo.net/ubuntu jammy-backports main restricted universe multiverse
+deb http://security.ubuntu.com/ubuntu jammy-security main restricted
+deb http://security.ubuntu.com/ubuntu jammy-security universe
+deb http://security.ubuntu.com/ubuntu jammy-security multiverse
+EOL
+    else
+        echo "Ungültige Auswahl. Beenden..."
+        return 1
+    fi
+
+    # 7. Bereinigen und Upgrade auf 20.04 (Focal)
+    echo "Möchten Sie ein Upgrade auf Ubuntu 20.04 (Focal) durchführen? (y/n): "; read -r confirm_upgrade
+    if [ "$confirm_upgrade" == "y" ]; then
+        apt clean all
+        apt update
+        apt dist-upgrade -y
+        reboot
+    fi
+
+    # 8. Alte Kernel und Pakete entfernen
+    echo "Möchten Sie alte Kernel und Pakete entfernen? (y/n): "; read -r confirm_autoremove
+    if [ "$confirm_autoremove" == "y" ]; then
+        echo "Bereinigen veralteter Kernel und nicht benötigter Pakete..."
+        apt autoremove --purge -y
+    fi
+
+    # 9. NTP entfernen und Chrony installieren
+    echo "Möchten Sie NTP entfernen und Chrony installieren? (y/n): "; read -r confirm_ntp
+    if [ "$confirm_ntp" == "y" ]; then
+        echo "Ersetze NTP durch Chrony..."
+        apt remove --purge ntp ntpdate -y
+        apt install chrony -y
+        echo "Passe die Chrony-Konfiguration an..."
+        cat <<EOL > /etc/chrony/chrony.conf
+server ntp1.lrz.de iburst
+server ntp2.lrz.de iburst
+server ntp3.lrz.de iburst
+keyfile /etc/chrony/chrony.keys
+driftfile /var/lib/chrony/chrony.drift
+rtcsync
+makestep 1 3
+EOL
+        systemctl restart chrony.service
+    fi
+
+    # 10. Upgrade auf Ubuntu 22.04 durchführen
+    echo "Möchten Sie das Upgrade auf Ubuntu 22.04 durchführen? (y/n): "; read -r confirm_final_upgrade
+    if [ "$confirm_final_upgrade" == "y" ]; then
+        echo "Upgrade auf Ubuntu 22.04 wird durchgeführt..."
+        apt update
+        apt dist-upgrade -y
+        sync
+        reboot
+    fi
+
+    # 11. Überprüfen des Systems nach dem Neustart
+    echo "Überprüfen des Systems nach dem Neustart..."
+    uname -a
+    cat /etc/os-release
+
+    # 12. DNS-Auflösung überprüfen
+    echo "Überprüfen der DNS-Auflösung..."
+    host lrz.de || {
+        systemctl is-enabled systemd-resolved.service
+        systemctl enable systemd-resolved.service
+        systemctl start systemd-resolved.service
+        mount /ldist
+        /ldist/install/configure-systemd-resolved
+        umount /ldist
+    }
+
+    # 13. Firewall und Sicherheitsdienste reaktivieren
+    echo "Möchten Sie Sicherheitsdienste reaktivieren? (y/n): "; read -r confirm_services
+    if [ "$confirm_services" == "y" ]; then
+        echo "Reaktiviere Sicherheitsdienste..."
+        systemctl restart ufw
+        puppet agent --enable
+    fi
+
+    # 14. Bereinigung der alten Konfigurationsdateien
+    echo "Möchten Sie veraltete Konfigurationsdateien mergen und entfernen? (y/n): "; read -r confirm_merge
+    if [ "$confirm_merge" == "y" ]; then
+        echo "Bereinige alte oder veraltete Konfigurationsdateien..."
+        find /etc -name "*.dpkg-dist" -or -name "*.dpkg-old"
+        for file in $(find /etc -name "*.dpkg-dist"); do
+            sdiff -o "${file%.dpkg-dist}.new" "$file" "${file%.dpkg-dist}"
+        done
+    fi
+
+    echo "Upgrade erfolgreich abgeschlossen!"
 }
 
 ## * iptablesset
