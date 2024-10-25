@@ -20,7 +20,7 @@ crontab -l
      # Restart the grid every morning at 5.
      0 5 * * * bash /opt/osmtool.sh autorestart
      # If Robust or the Welcome Region fails, restart the grid.
-     */15 * * * * bash /opt/osmtool.sh check_screens
+     */30 * * * * bash /opt/osmtool.sh check_screens
 
 crontab -e
 
