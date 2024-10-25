@@ -12,7 +12,7 @@ Ubuntu Server
 DOTNET 8 
 
 
-## Crontab Autostart
+## Crontab auto- start restart
 crontab -l
 
      # Restart server on the first day of each month due to cache data clutter.
@@ -29,3 +29,6 @@ ctrl O
 Enter
 
 ctrl X
+
+## TODO
+Automatic configuration is missing.
