@@ -4,7 +4,7 @@
 #* Informationen
 #──────────────────────────────────────────────────────────────────────────────────────────
 #
-	# ? opensimMULTITOOL Copyright (c) 2021 2024 BigManzai Manfred Zainhofer
+	# ? opensimMULTITOOL Copyright (c) 2021 2024 (Manfred Aabye) Manfred Zainhofer
 	# osmtool.sh Basiert auf meinen Einzelscripten, fuer den OpenSimulator (OpenSim) von http://opensimulator.org an denen ich bereits 7 Jahre Arbeite und verbessere.
 	# Da Server unterschiedlich sind, kann eine einwandfreie fuunktion nicht gewaehrleistet werden, also bitte mit bedacht verwenden.
 	# Die Benutzung dieses Scriptes, oder deren Bestandteile, erfolgt auf eigene Gefahr!!!
@@ -20,7 +20,7 @@
 	# ! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	# ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	#
-	# * Letzte bearbeitung 07.10.2024.
+	# * Letzte bearbeitung 26.10.2024.
 	#
 	# # Installieren sie bitte: #* Visual Studio Code
 	#* dazu die Plugins:
@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.0.1561" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.0.1566" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -4666,6 +4666,41 @@ function reboot() {
     # Starte den Server neu.
     shutdown -r now
 }
+## *  check_screens
+	# Diese Funktion überprüft, ob die Screens "RO" und "sim1" des OpenSimulators laufen.
+	# Wenn einer der beiden Screens nicht läuft und das entsprechende Verzeichnis vorhanden ist,
+	# wird ein Eintrag in die Log-Datei ProblemRestarts.log geschrieben und das Funktion /opt/osmtool.sh mit dem Parameter restart ausgeführt.
+	#
+	# Voraussetzungen:
+	# - Das Funktion sollte mit den entsprechenden Rechten ausgeführt werden, um auf die Screens zugreifen zu können.
+	# - Die Verzeichnisse /opt/robust und /opt/sim1 müssen vorhanden sein, wenn die zugehörigen Screens überprüft werden sollen.
+##
+function check_screens() {
+    # Überprüfen, ob das Verzeichnis /opt/robust existiert.
+    if [ -d "/opt/robust" ]; then
+        # Überprüfen, ob das Screen RO läuft.
+        screenRO=$(screen -ls | grep -w "RO")
+        
+        # Wenn das Screen nicht läuft, Log-Eintrag erstellen und das Skript ausführen.
+        if [ -z "$screenRO" ]; then
+            echo "Der Robust des OpenSimulators musste am $(date '+%Y-%m-%d %H:%M:%S') neu gestartet werden, da es ein Problem gegeben hat" >> ProblemRestarts.log
+            bash /opt/osmtool.sh restart
+            exit 0  # Beende das Funktion, um doppelte Neustarts zu vermeiden.
+        fi
+    fi
+
+    # Überprüfen, ob das Verzeichnis /opt/sim1 existiert.
+    if [ -d "/opt/sim1" ]; then
+        # Überprüfen, ob das Screen sim1 läuft.
+        screenSim1=$(screen -ls | grep -w "sim1")
+        
+        # Wenn das Screen nicht läuft, Log-Eintrag erstellen und das Skript ausführen.
+        if [ -z "$screenSim1" ]; then
+            echo "Die Welcome Region des OpenSimulators musste am $(date '+%Y-%m-%d %H:%M:%S') neu gestartet werden, da es ein Problem gegeben hat" >> ProblemRestarts.log
+            bash /opt/osmtool.sh restart
+        fi
+    fi
+}
 
 ## *  warnbox
 	#? Beschreibung: Zeigt eine Warnmeldung in einem Dialogfeld an.
@@ -8470,6 +8505,102 @@ function oscopy() {
 	return 0
 }
 
+# Funktion zum Kopieren der Tabelle assets
+function copy_assets_table() {
+    # Überprüfen, ob alle erforderlichen Argumente übergeben wurden
+    if [ "$#" -ne 4 ]; then
+        echo "Nutzung: $0 <DB_USER> <DB_PASSWORD> <SOURCE_DB> <TARGET_DB>"
+        exit 1
+    fi
+
+    # Globale Einstellungen für MySQL-Zugang und Datenbank
+    DB_USER=$1
+    DB_PASSWORD=$2
+    DB_HOST="localhost"
+
+    SOURCE_DB=$3
+    TARGET_DB=$4
+    TABLE="assets"
+
+    echo "Erstelle die neue Datenbank $TARGET_DB..."
+    mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -e "CREATE DATABASE IF NOT EXISTS $TARGET_DB;"
+
+    echo "Kopiere die Struktur der Tabelle $TABLE..."
+    mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -e "CREATE TABLE $TARGET_DB.$TABLE LIKE $SOURCE_DB.$TABLE;"
+
+    echo "Kopiere die Daten der Tabelle $TABLE..."
+    mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -e "INSERT INTO $TARGET_DB.$TABLE SELECT * FROM $SOURCE_DB.$TABLE;"
+
+    echo "Kopieren abgeschlossen."
+}
+
+# Funktion zum Vergleichen der Tabelleninhalte
+function compare_assets_table() {
+    # Überprüfen, ob alle erforderlichen Argumente übergeben wurden
+    if [ "$#" -ne 4 ]; then
+        echo "Nutzung: $0 <DB_USER> <DB_PASSWORD> <SOURCE_DB> <TARGET_DB>"
+        exit 1
+    fi
+
+    # Globale Einstellungen für MySQL-Zugang und Datenbank
+    DB_USER=$1
+    DB_PASSWORD=$2
+    DB_HOST="localhost"
+
+    SOURCE_DB=$3
+    TARGET_DB=$4
+    TABLE="assets"
+
+    echo "Vergleiche die Daten in $SOURCE_DB.$TABLE und $TARGET_DB.$TABLE..."
+
+    # Vergleiche die Anzahl der Zeilen in beiden Tabellen
+    COUNT_SOURCE=$(mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -sse "SELECT COUNT(*) FROM $SOURCE_DB.$TABLE;")
+    COUNT_TARGET=$(mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -sse "SELECT COUNT(*) FROM $TARGET_DB.$TABLE;")
+
+    if [ "$COUNT_SOURCE" -ne "$COUNT_TARGET" ]; then
+        echo "Fehler: Die Tabellen haben eine unterschiedliche Anzahl von Zeilen."
+        return 1
+    fi
+
+    # Optional: Tieferer Vergleich der Daten
+    DIFF_COUNT=$(mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -sse "
+        SELECT COUNT(*) 
+        FROM (SELECT * FROM $SOURCE_DB.$TABLE EXCEPT SELECT * FROM $TARGET_DB.$TABLE) AS diff;
+    ")
+
+    if [ "$DIFF_COUNT" -ne 0 ]; then
+        echo "Fehler: Die Daten in den Tabellen stimmen nicht überein."
+        return 1
+    fi
+
+    echo "Die Tabellen stimmen überein."
+    return 0
+}
+
+# Funktion zum Löschen der alten Tabelle, wenn der Vergleich erfolgreich ist
+function delete_old_assets_table() {
+    # Überprüfen, ob alle erforderlichen Argumente übergeben wurden
+    if [ "$#" -ne 4 ]; then
+        echo "Nutzung: $0 <DB_USER> <DB_PASSWORD> <SOURCE_DB> <TARGET_DB>"
+        exit 1
+    fi
+
+    # Globale Einstellungen für MySQL-Zugang und Datenbank
+    DB_USER=$1
+    DB_PASSWORD=$2
+    DB_HOST="localhost"
+
+    SOURCE_DB=$3
+    TARGET_DB=$4
+    TABLE="assets"
+
+    echo "Lösche die alte Tabelle $SOURCE_DB.$TABLE..."
+
+    mysql -u "$DB_USER" -p"$DB_PASSWORD" -h "$DB_HOST" -e "DROP TABLE $SOURCE_DB.$TABLE;"
+
+    echo "Tabelle $SOURCE_DB.$TABLE wurde gelöscht."
+}
+
 ## * configlesen
 	# Diese Funktion nimmt den Namen eines Verzeichnisses als Argument ($CONFIGLESENSCREEN) entgegen und
 	# liest die Regionskonfigurationen aus den INI-Dateien in diesem Verzeichnis. Die gelesenen
@@ -9296,6 +9427,9 @@ function autosimstart() {
 				STARTREGIONSAUSGABE=$(awk -F "[" '/\[/ {print $1 $2 $3}' /$STARTVERZEICHNIS/"${VERZEICHNISSLISTE[$i]}"/bin/Regions/*.ini | sed s/'\]'//g);
 				log info "${VERZEICHNISSLISTE[$i]} hat folgende Regionen:";
 				for regionen in "${STARTREGIONSAUSGABE[@]}"; do log rohtext "$regionen"; done
+				echo "--------------------------"
+				screen -ls
+				echo "--------------------------"
 			fi
 
 			# AOT Aktiveren oder Deaktivieren.
@@ -12374,6 +12508,7 @@ function db_rename_objects1() {
 
     return 0
 }
+##! Vorsicht im Test
 function db_rename_objects() {
 	local username="$1"
 	local password="$2"
@@ -12408,6 +12543,7 @@ function db_rename_objects() {
 		log rohtext "Asset mit name $name: Name aktualisiert zu $new_name"
 	done
 }
+##! Vorsicht im Test
 function db_rename_all_objects() {
 	local username="$1"
 	local password="$2"
@@ -25064,6 +25200,10 @@ case $KOMMANDO in
 	db_create_database_table) db_create_database_table "$2" "$3" "$4" "$5" ;;
 	osslEnableCreator) osslEnableCreator ;;
 	upgrade18to22) upgrade18to22 ;;
+	copy_assets_table) copy_assets_table "$2" "$3" "$4" "$5" ;;
+	compare_assets_table) compare_assets_table "$2" "$3" "$4" "$5" ;;
+	delete_old_assets_table) delete_old_assets_table "$2" "$3" "$4" "$5" ;;
+	check_screens) check_screens ;;
 	maxdump) maxdump ;;
 	mtpcpu) mtpcpu ;;
 	h) newhelp ;;
