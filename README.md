@@ -7,10 +7,7 @@ especially those based on Debian.
 
 Ubuntu Server 
 
-18.04 20.04 22.04 (It is already prepared for version 24.04, which will come with version 24.04.1 in September.) 
-
-DOTNET 8 
-
+18.04(DOTNET 6) 20.04 22.04(DOTNET 8) (It is already prepared for version 24.04(DOTNET 8), which will come with version 24.04.1 in September.) 
 
 ## OpenSimulator auto- start restart
 
