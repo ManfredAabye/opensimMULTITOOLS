@@ -13,22 +13,53 @@ DOTNET 8
 
 
 ## Crontab auto- start restart
-crontab -l
+# Crontabs auflisten:
+     crontab -l
 
-     # Restart server on the first day of each month due to cache data clutter.
+# Crontabs bearbeiten:
+     crontab -e
+
+     # Minute Stunde Tag Monat Jahr Kommando
+     #
+     # Restart um 6 Uhr und am 1. jeden Monat den ganzen Server neu starten.
+     # 
+     # Am ersten eines Monats Server neustarten wegen Cache Datenmuell.
      45 4 1 * * bash /opt/osmtool.sh reboot
-     # Restart the grid every morning at 5.
+     # Jeden Morgen um 5 Uhr das Grid neu starten.
      0 5 * * * bash /opt/osmtool.sh autorestart
-     # If Robust or the Welcome Region fails, restart the grid.
+     # Wenn Robust oder die Welcome Region ausfaellt, Grid neustart.
      */30 * * * * bash /opt/osmtool.sh check_screens
 
-crontab -e
+# Crontabs speichern:
+     ctrl O
+     Enter
+# Editor beenden:
+     ctrl X
 
-ctrl O
 
-Enter
 
-ctrl X
+# List crontabs:
+     crontab -l
+
+# Edit crontabs:
+     crontab -e
+
+     # Minute Hour Day Month Year Command
+     #
+     # Restart at 6 AM, and on the 1st of each month, restart the entire server.
+     #
+     # Restart server on the first of each month to clear cache data debris.
+     45 4 1 * * bash /opt/osmtool.sh reboot
+     # Restart the grid every morning at 5 AM.
+     0 5 * * * bash /opt/osmtool.sh autorestart
+     # If Robust or the Welcome region fails, restart the grid.
+     */30 * * * * bash /opt/osmtool.sh check_screens
+
+# Save crontabs
+     ctrl O
+     Enter
+# Exit editor
+     ctrl X
 
 ## TODO
 Automatic configuration is missing.
