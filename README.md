@@ -13,32 +13,8 @@ DOTNET 8
 
 
 ## Crontab auto- start restart
-### Deutsch Crontabs auflisten:
-     crontab -l
 
-### Crontabs bearbeiten:
-     crontab -e
-```
-# Minute Stunde Tag Monat Jahr Kommando
-#
-# Restart um 5 Uhr und am 1. jeden Monat den ganzen Server neu starten.
-# 
-# Am ersten eines Monats Server neustarten wegen Cache Datenmuell.
-45 4 1 * * bash /opt/osmtool.sh reboot
-# Jeden Morgen um 5 Uhr das Grid neu starten.
-0 5 * * * bash /opt/osmtool.sh autorestart
-# Wenn Robust oder die Welcome Region ausfaellt, Grid neustart.
-*/30 * * * * bash /opt/osmtool.sh check_screens
-```
-### Crontabs speichern:
-     ctrl O
-     Enter
-### Editor beenden:
-     ctrl X
-
-
-
-### English list crontabs:
+### List crontabs:
      crontab -l
 
 ### Edit crontabs:
