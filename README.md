@@ -18,18 +18,18 @@ DOTNET 8
 
 # Crontabs bearbeiten:
      crontab -e
-
-     # Minute Stunde Tag Monat Jahr Kommando
-     #
-     # Restart um 6 Uhr und am 1. jeden Monat den ganzen Server neu starten.
-     # 
-     # Am ersten eines Monats Server neustarten wegen Cache Datenmuell.
-     45 4 1 * * bash /opt/osmtool.sh reboot
-     # Jeden Morgen um 5 Uhr das Grid neu starten.
-     0 5 * * * bash /opt/osmtool.sh autorestart
-     # Wenn Robust oder die Welcome Region ausfaellt, Grid neustart.
-     */30 * * * * bash /opt/osmtool.sh check_screens
-
+```
+# Minute Stunde Tag Monat Jahr Kommando
+#
+# Restart um 6 Uhr und am 1. jeden Monat den ganzen Server neu starten.
+# 
+# Am ersten eines Monats Server neustarten wegen Cache Datenmuell.
+45 4 1 * * bash /opt/osmtool.sh reboot
+# Jeden Morgen um 5 Uhr das Grid neu starten.
+0 5 * * * bash /opt/osmtool.sh autorestart
+# Wenn Robust oder die Welcome Region ausfaellt, Grid neustart.
+*/30 * * * * bash /opt/osmtool.sh check_screens
+```
 # Crontabs speichern:
      ctrl O
      Enter
@@ -43,18 +43,18 @@ DOTNET 8
 
 # Edit crontabs:
      crontab -e
-
-     # Minute Hour Day Month Year Command
-     #
-     # Restart at 6 AM, and on the 1st of each month, restart the entire server.
-     #
-     # Restart server on the first of each month to clear cache data debris.
-     45 4 1 * * bash /opt/osmtool.sh reboot
-     # Restart the grid every morning at 5 AM.
-     0 5 * * * bash /opt/osmtool.sh autorestart
-     # If Robust or the Welcome region fails, restart the grid.
-     */30 * * * * bash /opt/osmtool.sh check_screens
-
+```
+# Minute Hour Day Month Year Command
+#
+# Restart at 6 AM, and on the 1st of each month, restart the entire server.
+#
+# Restart server on the first of each month to clear cache data debris.
+45 4 1 * * bash /opt/osmtool.sh reboot
+# Restart the grid every morning at 5 AM.
+0 5 * * * bash /opt/osmtool.sh autorestart
+# If Robust or the Welcome region fails, restart the grid.
+*/30 * * * * bash /opt/osmtool.sh check_screens
+```
 # Save crontabs
      ctrl O
      Enter
