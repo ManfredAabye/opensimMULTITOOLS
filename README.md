@@ -13,10 +13,10 @@ DOTNET 8
 
 
 ## Crontab auto- start restart
-# Crontabs auflisten:
+### Crontabs auflisten:
      crontab -l
 
-# Crontabs bearbeiten:
+### Crontabs bearbeiten:
      crontab -e
 ```
 # Minute Stunde Tag Monat Jahr Kommando
@@ -30,18 +30,18 @@ DOTNET 8
 # Wenn Robust oder die Welcome Region ausfaellt, Grid neustart.
 */30 * * * * bash /opt/osmtool.sh check_screens
 ```
-# Crontabs speichern:
+### Crontabs speichern:
      ctrl O
      Enter
-# Editor beenden:
+### Editor beenden:
      ctrl X
 
 
 
-# List crontabs:
+### List crontabs:
      crontab -l
 
-# Edit crontabs:
+### Edit crontabs:
      crontab -e
 ```
 # Minute Hour Day Month Year Command
@@ -55,10 +55,10 @@ DOTNET 8
 # If Robust or the Welcome region fails, restart the grid.
 */30 * * * * bash /opt/osmtool.sh check_screens
 ```
-# Save crontabs
+### Save crontabs
      ctrl O
      Enter
-# Exit editor
+### Exit editor
      ctrl X
 
 ## TODO
