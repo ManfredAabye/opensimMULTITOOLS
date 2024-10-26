@@ -21,7 +21,7 @@ DOTNET 8
 ```
 # Minute Stunde Tag Monat Jahr Kommando
 #
-# Restart um 6 Uhr und am 1. jeden Monat den ganzen Server neu starten.
+# Restart um 5 Uhr und am 1. jeden Monat den ganzen Server neu starten.
 # 
 # Am ersten eines Monats Server neustarten wegen Cache Datenmuell.
 45 4 1 * * bash /opt/osmtool.sh reboot
@@ -46,7 +46,7 @@ DOTNET 8
 ```
 # Minute Hour Day Month Year Command
 #
-# Restart at 6 AM, and on the 1st of each month, restart the entire server.
+# Restart at 5 AM, and on the 1st of each month, restart the entire server.
 #
 # Restart server on the first of each month to clear cache data debris.
 45 4 1 * * bash /opt/osmtool.sh reboot
