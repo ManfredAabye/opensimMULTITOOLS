@@ -13,7 +13,7 @@ DOTNET 8
 
 
 ## Crontab auto- start restart
-### Crontabs auflisten:
+### Deutsch Crontabs auflisten:
      crontab -l
 
 ### Crontabs bearbeiten:
@@ -38,7 +38,7 @@ DOTNET 8
 
 
 
-### List crontabs:
+### English list crontabs:
      crontab -l
 
 ### Edit crontabs:
