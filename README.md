@@ -12,7 +12,7 @@ Ubuntu Server
 DOTNET 8 
 
 
-## Crontab auto- start restart
+## OpenSimulator auto- start restart
 
 ### List crontabs:
      crontab -l
