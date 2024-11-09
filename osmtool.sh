@@ -20,7 +20,7 @@
 	# ! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	# ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	#
-	# * Letzte bearbeitung 26.10.2024.
+	# * Letzte bearbeitung 09.11.2024.
 	#
 	# # Installieren sie bitte: #* Visual Studio Code
 	#* dazu die Plugins:
@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.0.1566" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.1.1567" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -567,11 +567,11 @@ function debpaketbuild() {
 	oscopycompress $NUMMER
     
     # Test Variablen fuer den Paketbuilder
-    SOURCEVERZEICHNIS="/opt/opensim-0.9.3.0.$NUMMER"		# Binary distribution
+    SOURCEVERZEICHNIS="/opt/opensim-0.9.3.1.$NUMMER"		# Binary distribution
     PAKETVERZEICHNIS="/opt" 								# Paket Verzeichnis
-    PAKETNAME="opensim_0_9_3_0_Dev-$NUMMER-Extended.amd64" 	# OpenSimulator Version
+    PAKETNAME="opensim_0_9_3_1_Dev-$NUMMER-Extended.amd64" 	# OpenSimulator Version
 	HOME="/home/opensim" 									# apt install Installationsverzeichnis
-	PAKETNAME="opensim-0.9.3.0.$NUMMER"
+	PAKETNAME="opensim-0.9.3.1.$NUMMER"
     log info "SOURCEVERZEICHNIS=$SOURCEVERZEICHNIS" 
     log info "PAKETVERZEICHNIS=$PAKETVERZEICHNIS"
     log info "PAKETNAME=$PAKETNAME"
@@ -661,7 +661,7 @@ EOF
 	rm -r /$PAKETVERZEICHNIS/$PAKETNAME
     
     log info "Das fertige Paket befindet sich jetzt in /opt/$PAKETNAME.deb"
-    log info "Die installation wir so gestartet: apt install /opt/opensim_0_9_3_0_Dev-$NUMMER-Extended.amd64.deb"
+    log info "Die installation wir so gestartet: apt install /opt/opensim_0_9_3_1_Dev-$NUMMER-Extended.amd64.deb"
     log info "Achtung der installiert einfach nach $HOME/bin"
     log info "Zum Deinstallieren einfach: apt remove opensim"
 }
@@ -671,7 +671,7 @@ EOF
 	# Die Funktion oscopycompress() nimmt einen Parameter NUMMER entgegen, der optional ist. Dieser Parameter wird verwendet, um den Namen des Pakets zu generieren.
 	# Die Variable NUMMER wird ueberprueft, ob sie leer ist. Wenn sie leer ist, wird ihr der Wert "0000" zugewiesen.
 	# Das Arbeitsverzeichnis wird auf /opt geaendert. Wenn das aendern des Verzeichnisses fehlschlaegt, wird das Skript beendet.
-	# Der Name des Pakets wird mit der Variable NUMMER generiert. Der Name des Pakets folgt dem Muster "opensim-0.9.3.0.$NUMMER".
+	# Der Name des Pakets wird mit der Variable NUMMER generiert. Der Name des Pakets folgt dem Muster "opensim-0.9.3.1.$NUMMER".
 	# Ein Verzeichnis mit dem Namen des Pakets wird erstellt.
 	# Bestimmte Verzeichnisse (/opt/opensim/bin, /opt/BulletSim, /opt/opensim/ThirdPartyLicenses) werden in das Paketverzeichnis kopiert. Die Option -r wird verwendet, um die Verzeichnisse rekursiv zu kopieren.
 	# Bestimmte Dateien (/opt/opensim/BUILDING.md, /opt/opensim/CONTRIBUTORS.txt, /opt/opensim/LICENSE.txt, /opt/opensim/TESTING.txt) werden in das Paketverzeichnis kopiert.
@@ -684,7 +684,7 @@ function oscopycompress() {
 
 	cd /opt || exit
 
-	PAKETNAME="opensim-0.9.3.0.$NUMMER" 	# OpenSimulator Version
+	PAKETNAME="opensim-0.9.3.1.$NUMMER" 	# OpenSimulator Version
     
     # Erstelle das PAKETNAME
     mkdir "$PAKETNAME"
@@ -2326,8 +2326,8 @@ function osmtoolconfig() {
 		echo '    REGIONSDATEI="osmregionlist.ini"'
 		echo '    SIMDATEI="osmsimlist.ini"'
 		echo '    OPENSIMDOWNLOAD="http://opensimulator.org/dist/"'
-		echo '    OPENSIMVERSION="opensim-0.9.3.0Dev"'
-		echo '    #OPENSIMVERSION="opensim-0.9.3.0Dev"'
+		echo '    OPENSIMVERSION="opensim-0.9.3.1Dev"'
+		echo '    #OPENSIMVERSION="opensim-0.9.3.1Dev"'
 		echo '    SEARCHADRES="icanhazip.com" # Suchadresse'
 		echo "     "
 		echo '    REGIONSANZEIGE="yes"'
@@ -2415,9 +2415,9 @@ function osmtoolconfig() {
 		echo "#* Divers"
 		echo '    SETAOTON="no"'
 		echo '    REMOTEMODUS="no"'
-		echo "    # opensim-0.9.3.0Dev-4-g5e9b3b4.zip"
-		echo '    OSVERSION="opensim-0.9.3.0Dev-"'
-		echo '    # OSVERSION="opensim-0.9.3.0Dev-"'
+		echo "    # opensim-0.9.3.1Dev-4-g5e9b3b4.zip"
+		echo '    OSVERSION="opensim-0.9.3.1Dev-"'
+		echo '    # OSVERSION="opensim-0.9.3.1Dev-"'
 		echo '    insterweitert="yes"'
 		echo "     "
 		echo "#* Bereinigungen"
@@ -2667,8 +2667,8 @@ function dummyvar() {
 	# DIALOG_OK=0; DIALOG_HELP=2; DIALOG_EXTRA=3; DIALOG_ITEM_HELP=4; SIG_NONE=0; SIG_HUP=1; SIG_INT=2; SIG_QUIT=3; SIG_KILL=9; SIG_TERM=15
 	DIALOG_CANCEL=1; DIALOG_ESC=255; DIALOG=dialog; VISITORLIST="yes"; REGIONSANZEIGE="yes"; #DELREGIONS="no";
 	netversion="1946"; CONFIGPFAD="OpenSimConfig"; DOTNETMODUS="yes";
-	OSVERSION="opensim-0.9.3.0Dev";
-	OPENSIMVERSION="opensim-0.9.3.0.zip"; OSMTRANS=":de"; OSMTRANSLATOR="OFF";
+	OSVERSION="opensim-0.9.3.1Dev";
+	OPENSIMVERSION="opensim-0.9.3.1.zip"; OSMTRANS=":de"; OSMTRANSLATOR="OFF";
 }
 
 ## *  xhelp
@@ -11896,7 +11896,7 @@ function osbuilding93() {
 
 	log line
 
-	# Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
+	# Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
 	log info "Neuen OpenSimulator aus dem Git holen"
 	git clone git://opensimulator.org/git/opensim opensim
 
@@ -11996,7 +11996,7 @@ function osbuildingupgrade93() {
 
 ## * osbuilding.
 	# Baut automatisch einen neuen OpenSimulator mit den eingestellten Plugins.
-	# Beispiel Datei: opensim-0.9.3.0Dev-1187-gcf0b1b1.zip
+	# Beispiel Datei: opensim-0.9.3.1Dev-1187-gcf0b1b1.zip
 	# bash osmtool.sh osbuilding 1187
 	# 
 	#? @param keine.
@@ -12034,7 +12034,7 @@ function osbuilding() {
 
 	log line
 
-	# Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
+	# Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
 	log info "Neuen OpenSimulator entpacken"
 	unzip $OSVERSION"$VERSIONSNUMMER"-*.zip
 
@@ -12070,7 +12070,7 @@ function opensimbuildera() {
 
 	log line
 
-	# Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
+	# Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
 	log info "Neuen OpenSimulator entpacken"
 	unzip $OSVERSION"$VERSIONSNUMMER"-*.zip
 
@@ -12102,7 +12102,7 @@ function opensimbuilderb() {
 
     log line
 
-    # Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
+    # Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
     # Nehmen Sie die Versionsnummer als Argument oder setzen Sie sie fest
     VERSIONSNUMMER=$1
 
@@ -21213,12 +21213,12 @@ function oszipupgrade() {
 	log line
 
 	log info "Neuen OpenSimulator aus der ZIP entpacken"
-	unzip opensim-0.9.3.0."$VERSIONSNUMMER".zip
+	unzip opensim-0.9.3.1."$VERSIONSNUMMER".zip
 
 	log line
 
 	log info "Neuen OpenSimulator umbenennen"
-	mv /"$STARTVERZEICHNIS"/opensim-0.9.3.0."$VERSIONSNUMMER"/ /"$STARTVERZEICHNIS"/opensim/
+	mv /"$STARTVERZEICHNIS"/opensim-0.9.3.1."$VERSIONSNUMMER"/ /"$STARTVERZEICHNIS"/opensim/
 
 	log line
 
