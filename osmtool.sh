@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.1.1567" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.1.1574" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -2463,6 +2463,8 @@ function osmtoolconfig() {
 		echo '    LINK31="http://opensimulator.org/dist/opensim-0.9.2.2-source.zip"'
 		echo '    LINK32="http://opensimulator.org/dist/opensim-0.9.2.2.tar.gz"'
 		echo '    LINK33="http://opensimulator.org/dist/opensim-0.9.2.2.zip"'
+		echo '    LINK32="http://opensimulator.org/dist/opensim-0.9.3.0.tar.gz"'
+		echo '    LINK33="http://opensimulator.org/dist/opensim-0.9.3.0.zip"'
 		echo "     "
 		echo "#* Liste der zu verwendende Musiklisten."
 		echo '    listVar="50s 60s 70s 80s 90s Alternative Blues Classic Club Country Dance Disco EDM Easy Electronic Folk Funk Gothic Heavy Hits House Indie Jazz Metal Misc Oldies Party Pop Reggae Rock Schlager Soul Techno Top Trance industrial pop"'
@@ -11996,7 +11998,7 @@ function osbuildingupgrade93() {
 
 ## * osbuilding.
 	# Baut automatisch einen neuen OpenSimulator mit den eingestellten Plugins.
-	# Beispiel Datei: opensim-0.9.3.1Dev-1187-gcf0b1b1.zip
+	# Beispiel Datei: opensim-0.9.3.0Dev-1187-gcf0b1b1.zip
 	# bash osmtool.sh osbuilding 1187
 	# 
 	#? @param keine.
@@ -12004,6 +12006,8 @@ function osbuildingupgrade93() {
 	# todo: nichts.
 ##
 function osbuilding() {
+	#OSVERSION=""
+	#VERSIONSNUMMER=""
 	# dialog Aktionen
 	# zuerst schauen ob dialog installiert ist
 	if dpkg-query -s dialog 2>/dev/null | grep -q installed; then
@@ -12023,25 +12027,33 @@ function osbuilding() {
 
 	cd /$STARTVERZEICHNIS || exit
 
-	# Ist die OpenSim Datei vorhanden?
-	if [ ! -e "$OSVERSION$VERSIONSNUMMER"*.zip ]; then
-		log error "Die Datei $OSVERSION$VERSIONSNUMMER-*.zip existiert nicht."
-		exit 1  # Beenden Sie das Skript mit einem Fehlercode
+	log info "Alten OpenSimulator sichern"
+	# osdelete
+
+	if [ -d /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS/ ]; then
+		log info "Loesche altes opensim1 Verzeichnis"
+		cd /$STARTVERZEICHNIS || return 1
+		rm -r /$STARTVERZEICHNIS/opensim1
+		log info "Umbenennen von $OPENSIMVERZEICHNIS nach opensim1 zur sicherung"
+		mv /$STARTVERZEICHNIS/opensim /$STARTVERZEICHNIS/opensim1
+		log line
+
+	else
+		log error "$STARTVERZEICHNIS Verzeichnis existiert nicht"
 	fi
 
-	log info "Alten OpenSimulator sichern"
-	osdelete
-
 	log line
 
-	# Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
+	# Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
 	log info "Neuen OpenSimulator entpacken"
-	unzip $OSVERSION"$VERSIONSNUMMER"-*.zip
+	unzip $OSVERSION"-$VERSIONSNUMMER"-*.zip
 
 	log line
 
 	log info "Neuen OpenSimulator umbenennen"
-	mv /$STARTVERZEICHNIS/$OSVERSION"$VERSIONSNUMMER"-*/ /$STARTVERZEICHNIS/opensim/
+	mv /$STARTVERZEICHNIS/$OSVERSION /$STARTVERZEICHNIS/opensim/
+	#opensim-0.9.3.1Dev
+	#mv: cannot move '/opt/opensim-0.9.3.1Dev-1-g81cfd6e.zip' to '/opt/opensim/': Not a directory
 
 	log line
 	sleep 3
@@ -12060,76 +12072,6 @@ function osbuilding() {
 	return 0
 }
 
-function opensimbuildera() {
-	# Alle Aktionen ohne dialog
-	VERSIONSNUMMER=$1
-
-	cd /$STARTVERZEICHNIS || exit
-	log info "Alten OpenSimulator sichern"
-	osdelete
-
-	log line
-
-	# Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
-	log info "Neuen OpenSimulator entpacken"
-	unzip $OSVERSION"$VERSIONSNUMMER"-*.zip
-
-	log line
-
-	log info "Neuen OpenSimulator umbenennen"
-	mv /$STARTVERZEICHNIS/$OSVERSION"$VERSIONSNUMMER"-*/ /$STARTVERZEICHNIS/opensim/
-
-	log line
-	sleep 3
-
-	log info "Prebuild des neuen OpenSimulator starten"
-	setversion "$VERSIONSNUMMER"
-
-	log line
-
-	log info "Compilieren des neuen OpenSimulator"
-	compilieren
-
-	log line
-	osupgrade
-
-	return 0
-}
-function opensimbuilderb() {
-    cd /$STARTVERZEICHNIS || exit
-    log info "Alten OpenSimulator sichern"
-    osdelete
-
-    log line
-
-    # Neue Versionsnummer: opensim-0.9.3.1Dev-4-g5e9b3b4.zip
-    # Nehmen Sie die Versionsnummer als Argument oder setzen Sie sie fest
-    VERSIONSNUMMER=$1
-
-    log info "Neuen OpenSimulator entpacken"
-    unzip $OSVERSION"$VERSIONSNUMMER"-*.zip
-
-    log line
-
-    log info "Neuen OpenSimulator umbenennen"
-    mv /$STARTVERZEICHNIS/$OSVERSION"$VERSIONSNUMMER"-*/ /$STARTVERZEICHNIS/opensim/
-
-    log line
-    sleep 3
-
-    log info "Prebuild des neuen OpenSimulator starten"
-    setversion "$VERSIONSNUMMER"
-
-    log line
-
-    log info "Compilieren des neuen OpenSimulator"
-    compilieren
-
-    log line
-    osupgrade
-
-    return 0
-}
 
 ## * createuser.
 	# Erstellen eines neuen Benutzer in der Robust Konsole.
@@ -25203,6 +25145,7 @@ case $KOMMANDO in
 	copy_assets_table) copy_assets_table "$2" "$3" "$4" "$5" ;;
 	compare_assets_table) compare_assets_table "$2" "$3" "$4" "$5" ;;
 	delete_old_assets_table) delete_old_assets_table "$2" "$3" "$4" "$5" ;;
+	OSEntpacken) OSEntpacken "$2" ;;
 	check_screens) check_screens ;;
 	maxdump) maxdump ;;
 	mtpcpu) mtpcpu ;;
