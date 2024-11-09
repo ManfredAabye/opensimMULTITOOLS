@@ -9,7 +9,9 @@ Ubuntu Server
 
 18.04(DOTNET 6) 20.04 22.04(DOTNET 8) (It is already prepared for version 24.04(DOTNET 8), which will come with version 24.04.1 in September.) 
 
-## OpenSimulator auto- start restart
+OpenSimulator 0.9.3.0 + 0.9.3.1Dev
+
+## OpenSimulator auto- start stop restart
 
 ### List crontabs:
      crontab -l
