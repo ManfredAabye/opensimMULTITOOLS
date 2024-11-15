@@ -20,7 +20,7 @@
 	# ! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	# ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	#
-	# * Letzte bearbeitung 09.11.2024.
+	# * Letzte bearbeitung 15.11.2024.
 	#
 	# # Installieren sie bitte: #* Visual Studio Code
 	#* dazu die Plugins:
@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.1.1574" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.1.1577" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -2416,7 +2416,7 @@ function osmtoolconfig() {
 		echo '    SETAOTON="no"'
 		echo '    REMOTEMODUS="no"'
 		echo "    # opensim-0.9.3.1Dev-4-g5e9b3b4.zip"
-		echo '    OSVERSION="opensim-0.9.3.1Dev-"'
+		echo '    OSVERSION="opensim-0.9.3.1Dev"'
 		echo '    # OSVERSION="opensim-0.9.3.1Dev-"'
 		echo '    insterweitert="yes"'
 		echo "     "
@@ -12044,16 +12044,40 @@ function osbuilding() {
 
 	log line
 
-	# Neue Versionsnummer: opensim-0.9.3.0Dev-4-g5e9b3b4.zip
+	##### NEU
+	## Nur fuer Testzwecke
+	#OSVERSION="opensim-0.9.3.1Dev"
+	#VERSIONSNUMMER=2
+	#STARTVERZEICHNIS=/opt
+
+	# Entpacken der ZIP-Datei
 	log info "Neuen OpenSimulator entpacken"
-	unzip $OSVERSION"-$VERSIONSNUMMER"-*.zip
+	ZIPFILE=$(ls ${OSVERSION}-${VERSIONSNUMMER}-*.zip 2>/dev/null)
+
+	if [ -n "$ZIPFILE" ]; then
+		unzip "$ZIPFILE"
+		log info "Entpackte Datei: $ZIPFILE"
+	else
+		log error "Die Datei ${OSVERSION}-${VERSIONSNUMMER}-*.zip existiert nicht."
+		exit 1
+	fi
+
+	# Entpackten Ordnernamen suchen und speichern
+	ENTPACKTES_VERZEICHNIS=$(find . -type d -name "${OSVERSION}-${VERSIONSNUMMER}-*" -print -quit)
+
+	if [ -z "$ENTPACKTES_VERZEICHNIS" ]; then
+		log error "Entpacktes Verzeichnis für ${OSVERSION}-${VERSIONSNUMMER} nicht gefunden."
+		exit 1
+	fi
 
 	log line
-
 	log info "Neuen OpenSimulator umbenennen"
-	mv /$STARTVERZEICHNIS/$OSVERSION /$STARTVERZEICHNIS/opensim/
-	#opensim-0.9.3.1Dev
-	#mv: cannot move '/opt/opensim-0.9.3.1Dev-1-g81cfd6e.zip' to '/opt/opensim/': Not a directory
+	log info "mv $ENTPACKTES_VERZEICHNIS /${STARTVERZEICHNIS}/opensim"
+	sleep 3
+
+	mv "$ENTPACKTES_VERZEICHNIS" "/${STARTVERZEICHNIS}/opensim"
+
+	##### NEU ENDE
 
 	log line
 	sleep 3
