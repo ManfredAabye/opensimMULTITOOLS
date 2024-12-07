@@ -1,5 +1,7 @@
 @echo off
-
+::
+:: OpenSim Windows Tool Version 07122024V4
+::
 echo _______________________________________________________________________________________________________________________
 echo Willkommen beim OpenSim Windows Tool!
 echo _______________________________________________________________________________________________________________________
@@ -50,34 +52,34 @@ echo ___________________________________________________________________________
 )
 
 echo _______________________________________________________________________________________________________________________
-echo diva-distribution
+echo diva-distribution-master
 echo _______________________________________________________________________________________________________________________
-set /p divaChoice="Moechten Sie diva-distribution herunterladen? (J/N): "
+set /p divaChoice="Moechten Sie diva-distribution-master herunterladen? (J/N): "
 if /i "%divaChoice%"=="J" (
     echo _______________________________________________________________________________________________________________________
     echo Diva Wifi Repository in ein Unterverzeichnis von opensimsource klonen
 echo _______________________________________________________________________________________________________________________
 
-    if not exist "opensimsource\diva-distribution" (
-        echo Lade diva-distribution herunter...
-        git clone https://github.com/ManfredAabye/diva-distribution.git opensimsource\diva-distribution
-        git clone https://github.com/ManfredAabye/d2.git opensimsource\diva-distribution
+    if not exist "opensimsource\diva-distribution-master" (
+        echo Lade diva-distribution-master herunter...
+        git clone https://github.com/ManfredAabye/diva-distribution.git opensimsource\diva-distribution-master
+        git clone https://github.com/ManfredAabye/d2.git opensimsource\diva-distribution-master
     ) else (
-        echo diva-distribution bereits vorhanden, ueberspringe den Download...
+        echo diva-distribution-master bereits vorhanden, ueberspringe den Download...
     )
 
     echo _______________________________________________________________________________________________________________________
-    echo Kopiere Dateien von diva-distribution nach opensimsource...
+    echo Kopiere Dateien von diva-distribution-master nach opensimsource...
     echo _______________________________________________________________________________________________________________________
 
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\00Data\*.*" "opensimsource\addon-modules\00Data\"
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\00DivaInterfaces\*.*" "opensimsource\addon-modules\00DivaInterfaces\"
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\01DivaUtils\*.*" "opensimsource\addon-modules\01DivaUtils\"
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\1DivaOpenSimServices\*.*" "opensimsource\addon-modules\1DivaOpenSimServices\"
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\20WifiScriptEngine\*.*" "opensimsource\addon-modules\20WifiScriptEngine\"
-    xcopy /s /y "opensimsource\diva-distribution\addon-modules\21Wifi\*.*" "opensimsource\addon-modules\21Wifi\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\00Data\*.*" "opensimsource\addon-modules\00Data\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\00DivaInterfaces\*.*" "opensimsource\addon-modules\00DivaInterfaces\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\01DivaUtils\*.*" "opensimsource\addon-modules\01DivaUtils\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\1DivaOpenSimServices\*.*" "opensimsource\addon-modules\1DivaOpenSimServices\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\20WifiScriptEngine\*.*" "opensimsource\addon-modules\20WifiScriptEngine\"
+    xcopy /s /y "opensimsource\diva-distribution-master\addon-modules\21Wifi\*.*" "opensimsource\addon-modules\21Wifi\"
 ) else (
-    echo diva-distribution uebersprungen.
+    echo diva-distribution-master uebersprungen.
 )
 
 echo _______________________________________________________________________________________________________________________
