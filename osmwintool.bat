@@ -18,29 +18,9 @@ echo ___________________________________________________________________________
 if not exist "opensimsource" (
     echo Lade OpenSim herunter...
     git clone https://github.com/opensim/opensim.git opensimsource
-) else (
-    echo Verzeichnis "opensimsource" existiert bereits.
-    set /p upgradeChoice="Moechten Sie OpenSim aktualisieren oder auf Branch dotnet6 wechseln? (pull/checkout/neu): "
-    
-    if /i "%upgradeChoice%"=="pull" (
-        echo Aktualisiere bestehendes OpenSim Repository...
-        cd opensimsource
-        git pull
-        cd ..
-    ) else if /i "%upgradeChoice%"=="checkout" (
-        echo Wechsle auf Branch dotnet6...
-        cd opensimsource
-        git checkout dotnet6
-        cd ..
-    ) else if /i "%upgradeChoice%"=="neu" (
-        echo Loesche altes Verzeichniss...
-        rmdir /s /q opensimsource
-        echo Lade OpenSim herunter...
-        git clone https://github.com/opensim/opensim.git opensimsource
-    ) else (
-        echo Ungueltige Auswahl, Abbruch.
-        exit /b 1
-    )
+) else (    
+    echo Verzeichnis "opensimsource" existiert bereits, benennen sie es um, oder löschen sie es.
+    exit /b
 )
 
 echo _______________________________________________________________________________________________________________________
@@ -81,6 +61,7 @@ echo ___________________________________________________________________________
     if not exist "opensimsource\diva-distribution" (
         echo Lade diva-distribution herunter...
         git clone https://github.com/ManfredAabye/diva-distribution.git opensimsource\diva-distribution
+        git clone https://github.com/ManfredAabye/d2.git opensimsource\diva-distribution
     ) else (
         echo diva-distribution bereits vorhanden, ueberspringe den Download...
     )
