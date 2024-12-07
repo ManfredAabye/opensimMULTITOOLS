@@ -106,6 +106,11 @@ copy bin\System.Drawing.Common.dll.win bin\System.Drawing.Common.dll
 echo _______________________________________________________________________________________________________________________
 echo Erstelle die Prebuild Dateien...
 echo _______________________________________________________________________________________________________________________
+:: Voher cleanen sonst doppelte eintragungen von dotnet 8.0
+:: Wenn die Datei OpenSim.sln vorhanden ist kann ein clean nicht schaden oder?
+if exist "OpenSim.sln" (
+dotnet bin\prebuild.dll /file prebuild.xml /clean
+)
 
 dotnet bin\prebuild.dll /target vs2022 /targetframework net8_0 /excludedir = "obj | bin" /file prebuild.xml
 
