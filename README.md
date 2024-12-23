@@ -1,7 +1,17 @@
 # opensimMULTITOOLS
 Bash and Batch Tools for OpenSimulator 
 ## Windows
-Start the batch file and press Enter for everything until it finishes.
+Start the batch file and press Enter for everything until it is finished.
+
+The selection is only for people who know what they are doing.
+
+System requirements for creating OpenSimulator:
+
+DOTNET 8.0.x https://dotnet.microsoft.com/en-us/download/dotnet/8.0
+
+Visual Tudio 22 Community https://visualstudio.microsoft.com/de/vs/community/
+
+Git https://git-scm.com/downloads/win
 
 ## Linux
 Ubuntu is one of the most popular Linux distributions and has good compatibility with other Linux versions, 
