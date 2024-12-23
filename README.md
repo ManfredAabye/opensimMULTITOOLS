@@ -1,6 +1,9 @@
 # opensimMULTITOOLS
-Bash Tools for OpenSimulator 
+Bash and Batch Tools for OpenSimulator 
+## Windows
+Start the batch file and press Enter for everything until it finishes.
 
+## Linux
 Ubuntu is one of the most popular Linux distributions and has good compatibility with other Linux versions, 
 
 especially those based on Debian. 
