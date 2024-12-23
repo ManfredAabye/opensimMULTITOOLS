@@ -20,7 +20,7 @@
 	# ! FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 	# ! LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 	#
-	# * Letzte bearbeitung 15.11.2024.
+	# * Letzte bearbeitung 23.12.2024.
 	#
 	# # Installieren sie bitte: #* Visual Studio Code
 	#* dazu die Plugins:
@@ -41,7 +41,7 @@
 #──────────────────────────────────────────────────────────────────────────────────────────
 
 SCRIPTNAME="opensimMULTITOOL" # opensimMULTITOOL Versionsausgabe.
-VERSION="V0.9.3.1.1577" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
+VERSION="V0.9.3.1.1585" # opensimMULTITOOL Versionsausgabe angepasst an OpenSim.
 tput reset # Bildschirmausgabe loeschen inklusive dem Scrollbereich.
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -2279,8 +2279,8 @@ function osmtoolconfig() {
 		echo '    PBRSOURCE="OpenSim_PBR_Textures"'
 		echo '    PBRZIP="OpenSim_PBR_Textures.zip"'
 		echo "     "
-		echo '    MONEYSOURCE="OpenSimCurrencyServer-2023"'
-		echo '    MONEYZIP="OpenSimCurrencyServer-2023.zip"'
+		echo '    MONEYSOURCE="opensimcurrencyserver-dotnet-main"'
+		echo '    MONEYZIP="opensimcurrencyserver-dotnet-main.zip"'
 		echo '    BULLETSOURCE="BulletSim"'
 		echo '    BULLETZIP="BulletSim-main.zip"'
 		echo '    #MUTELISTSOURCE="opensim-ossl-example-scripts-main"'
@@ -2382,7 +2382,7 @@ function osmtoolconfig() {
 		echo '	BULLETUBUNTU2304lunar="libBulletSim-3.26-20231209-x86_64.so"'
 		echo '	BULLETUBUNTU2310mantic="libBulletSim-3.26-20231209-x86_64.so"'
 		echo "     "
-		echo '	BULLETUBUNTU2404noble="libBulletSim-3.26-20231209-x86_64.so"'
+		echo '	BULLETUBUNTU2404noble="libBulletSim-3.26-20241210-x86_64.so"'
 		echo "     "
 		echo "#* Inklusive"
 		echo '    SCRIPTCOPY="yes"'
@@ -2657,7 +2657,7 @@ KOMMANDO=$1
 ##
 function dummyvar() {
 	# shellcheck disable=SC2034
-	MONEYVERZEICHNIS="robust"; ROBUSTVERZEICHNIS="robust"; OPENSIMVERZEICHNIS="opensim"; SCRIPTSOURCE="ScriptNeu"; SCRIPTZIP="opensim-ossl-example-scripts-main.zip"; MONEYSOURCE="OpenSimCurrencyServer-2023";
+	MONEYVERZEICHNIS="robust"; ROBUSTVERZEICHNIS="robust"; OPENSIMVERZEICHNIS="opensim"; SCRIPTSOURCE="ScriptNeu"; SCRIPTZIP="opensim-ossl-example-scripts-main.zip"; MONEYSOURCE="opensimcurrencyserver-dotnet-main";
 	BULLETSOURCE="BulletSim"; BULLETZIP="BulletSim-main.zip";
 	MONEYZIP="OpenSimCurrencyServer-2021-master.zip"; REGIONSDATEI="osmregionlist.ini"; WARTEZEIT=30; STARTWARTEZEIT=10; STOPWARTEZEIT=30; MONEYWARTEZEIT=60; ROBUSTWARTEZEIT=60;
 	BACKUPWARTEZEIT=120; AUTOSTOPZEIT=60; SETMONOTHREADS=800; SETMONOTHREADSON="yes"; OPENSIMDOWNLOAD="http://opensimulator.org/dist/"; SEARCHADRES="icanhazip.com"; # AUTOCONFIG="no"
@@ -4250,7 +4250,7 @@ function ossettings_dotnet2() {
 	# Parameter: Keine
 	# Rueckgabewert: 0 bei erfolgreicher Konfiguration, 1 bei einem Fehler.
 ##
-function ossettings_dotnet() {
+function ossettings_dotnet3() {
 	# Letzte Bearbeitung 25.01.2024. Dies sind DOTNET6.0 Tests.
 	log line
 	log info "Einstellungen fuer DOTNET (Testbetrieb)"
@@ -4331,6 +4331,91 @@ function ossettings_dotnet() {
 
 	return 0
 }
+
+function ossettings_dotnet() {
+    # Letzte Bearbeitung 25.01.2024. Dies sind DOTNET8.0 Einstellungen.
+    log line
+    log info "Einstellungen fuer DOTNET 8.0"
+    log info "Exportierte Einstellungen:"
+
+    # DOTNET_Thread_UseAllCpuGroups
+    log info "DOTNET_Thread_UseAllCpuGroups=1: Verwendet alle CPU-Gruppen."
+    export DOTNET_Thread_UseAllCpuGroups=1 || {
+        log error "Fehler beim Setzen von DOTNET_Thread_UseAllCpuGroups"
+        return 1
+    }
+
+    # ThreadPoolMinThreads
+    log info "ThreadPoolMinThreads=8: Minimale Anzahl von Threads im ThreadPool."
+    export ThreadPoolMinThreads=8 || {
+        log error "Fehler beim Setzen von ThreadPoolMinThreads"
+        return 1
+    }
+
+    # ThreadPoolMaxThreads
+    log info "ThreadPoolMaxThreads=$SETMONOTHREADS: Maximale Anzahl von Threads im ThreadPool."
+    export ThreadPoolMaxThreads=$SETMONOTHREADS || {
+        log error "Fehler beim Setzen von ThreadPoolMaxThreads"
+        return 1
+    }
+
+    # AutoreleasePoolSupport (Nur relevant für macOS und iOS)
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        log info "AutoreleasePoolSupport=true: Aktiviert den Autorelease Pool Support."
+        export AutoreleasePoolSupport=true || {
+            log error "Fehler beim Setzen von AutoreleasePoolSupport"
+            return 1
+        }
+    fi
+
+    # ulimit -s 1048576
+    log info "ulimit -s 1048576: Setzt die maximale Stapeltiefe auf 1048576."
+    ulimit -s 1048576 || {
+        log error "Fehler beim Setzen von ulimit -s 1048576"
+        return 1
+    }
+
+    # MONO_THREADS_PER_CPU
+    log info "MONO_THREADS_PER_CPU=$SETMONOTHREADS: Anzahl der Mono-Threads pro CPU."
+    export MONO_THREADS_PER_CPU=$SETMONOTHREADS || {
+        log error "Fehler beim Setzen von MONO_THREADS_PER_CPU"
+        return 1
+    }
+
+    # Garbage Collection-Parameter
+    log info "DOTNET_GC_SERVER=1: Aktiviert DOTNET GarbageCollector im Server-Modus."
+    export DOTNET_GC_SERVER=1 || {
+        log error "Fehler beim Setzen von DOTNET_GC_SERVER"
+        return 1
+    }
+
+    log info "DOTNET_GC_CONCURRENT=1: Aktiviert DOTNET concurrent GarbageCollector."
+    export DOTNET_GC_CONCURRENT=1 || {
+        log error "Fehler beim Setzen von DOTNET_GC_CONCURRENT"
+        return 1
+    }
+
+    log info "DOTNET_GC_HEAP_COUNT=1: Anzahl der verwalteten Heaps."
+    export DOTNET_GC_HEAP_COUNT=1 || {
+        log error "Fehler beim Setzen von DOTNET_GC_HEAP_COUNT"
+        return 1
+    }
+
+    log info "DOTNET_GC_GCHANDLE_TYPE=0: Setzt den Typ der verwalteten Handles."
+    export DOTNET_GC_GCHANDLE_TYPE=0 || {
+        log error "Fehler beim Setzen von DOTNET_GC_GCHANDLE_TYPE"
+        return 1
+    }
+
+    log info "DOTNET_GC_HEAP_HARDLIMIT=0: Setzt das harte Limit fuer den Heapspeicher."
+    export DOTNET_GC_HEAP_HARDLIMIT=0 || {
+        log error "Fehler beim Setzen von DOTNET_GC_HEAP_HARDLIMIT"
+        return 1
+    }
+
+    return 0
+}
+
 
 
 #──────────────────────────────────────────────────────────────────────────────────────────
@@ -7353,45 +7438,46 @@ function terminator() {
 	return 0
 }
 
+# todo:Funktioniert so nicht.
 function buildbullet()
-{
-    BuildDate=""
-    BulletVersion=""
+{ # Ist CMake installiert?
+    BuildDate="05122024"
+    BulletVersion="3.26"
 
     echo "Erstelle BulettSim fuer den OpenSimulator!"
-    # BulletSim vom Git holen
+    echo "BulletSim vom Git holen"
     cd /opt || exit
     git clone git://opensimulator.org/git/opensim-libs opensim-libs
     
-     # Bullet3 vom Git holen
+    echo "Bullet3 vom Git holen"
     cd /opt/opensim-libs/trunk/unmanaged/BulletSim || exit
     git clone --depth 1 --single-branch https://github.com/bulletphysics/bullet3.git
 
-    # Anwenden aller Patches fuer Bullet.
+    echo "Anwenden aller Patches fuer Bullet."
 
 
     cd bullet3 || exit ; for file in ../*.patch ; do cat "$file" | patch -p1 ; done
 
     cd /opt/opensim-libs/trunk/unmanaged/BulletSim || exit
 
-    # Informationen zur Versionsdatei generieren
+    echo "Informationen zur Versionsdatei generieren"
     bash buildBulletCMake.sh
-    # BulletSim erstellen
+    echo " BulletSim erstellen"
     bash buildVersionInfo.sh
-    # Ausfuehren das BulletSim-Kompilierungs- und Link-Skript.
+    echo "Ausfuehren das BulletSim-Kompilierungs- und Link-Skript."
     bash buildBulletSim.sh
     echo "Erstellen des BulettSim beendet!"
     echo "Die Datei libBulletSim-******.so kopieren und die Konfigurationsdatei OpenSim.Region.PhysicsModule.BulletS.dll.config anpassen!"
 
-    # BulletSimVersionInfo auslesen
+    echo "BulletSimVersionInfo auslesen"
     # shellcheck disable=SC1091
     . /opt/opensim-libs/trunk/unmanaged/BulletSim/BulletSimVersionInfo
-    # Testausgabe
+    # echo "Testausgabe"
     echo "libBulletSim-$BulletVersion-$BuildDate-x86_64.so"
-    # Neue Konfiguration schreiben im OpenSim/bin Verzeichnis.
-    #bulletconfig libBulletSim-"$BulletVersion"-"$BuildDate"-x86_64.so
+    echo "Neue Konfiguration schreiben im OpenSim/bin Verzeichnis."
+    bulletconfig libBulletSim-"$BulletVersion"-"$BuildDate"-x86_64.so
 
-	# Konfiguration schreiben im Verzeichnis der neuen Bullet so Datei.
+	echo "Konfiguration schreiben im Verzeichnis der neuen Bullet so Datei."
 {
 	echo "<configuration>"
 	echo '  <dllmap os="windows" cpu="x86-64" dll="BulletSim" target="lib64/BulletSim-3.26-20231207-x86_64.dll" />'
@@ -7624,24 +7710,86 @@ function oscompi() {
         # Kompilieren mit oder ohne Logdatei
         if [[ "$SETOSCOMPION" = "" || "$SETOSCOMPION" = "no" ]]; then
             log info "DOTNET Standard Kompilierung Release."
+            #build_output=$(dotnet build -c Release OpenSim.sln)
+			dotnet build -c Release OpenSim.sln
+        elif [[ $SETOSCOMPION = "yes" ]]; then
+            log info "DOTNET Standard Kompilierung Release mit Logdatei."
+            #build_output=$(dotnet build -c Release OpenSim.sln /fileLogger /flp:logfile=opensimbuild.log /v:d)
+			dotnet build -c Release OpenSim.sln /fileLogger /flp:logfile=opensimbuild.log /v:d
+        fi
+
+		# todo: Bei einem Fehlschlag muss das Skript beendet werden.
+        # Ausgabe pruefen und nach Warnungen und Fehlern suchen
+        #log info "Pruefe Build-Ergebnisse..."
+        #echo "$build_output"
+
+        warnings=$(echo "$build_output" | grep -E '^[0-9]+ Warning\(s\)$' | awk '{print $1}')
+        errors=$(echo "$build_output" | grep -E '^[0-9]+ Error\(s\)$' | awk '{print $1}')
+
+		
+        # if [[ $warnings -eq 0 && $errors -eq 0 ]]; then
+        #     log info "Build erfolgreich. 0 Warnungen, 0 Fehler."
+        # else
+        #     log error "Build fehlgeschlagen: $warnings Warnung(en), $errors Fehler."
+        #     if [[ $errors -gt 0 ]]; then
+        #         log error "Fehler bei der Kompilierung. Beende Skript."
+        #         return 1
+        #     fi
+        # fi
+
+        # AOT aktivieren oder deaktivieren
+        if [[ $SETAOTON = "yes" ]]; then
+            log info "AOT wird aktiviert."
+            makeaot
+        fi
+    fi
+}
+function oscompineu() {
+    # Letzte Bearbeitung 31.03.2024
+    log info "Kompilierungsvorgang startet"
+
+    # In das opensim Verzeichnis wechseln, wenn es das gibt, ansonsten beenden.
+    cd /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS || return 1
+
+    log info "Prebuildvorgang startet"
+
+    # runprebuild.sh startbar machen:
+    chmod +x runprebuild.sh
+    if [ "$DOTNETMODUS" = "yes" ]; then
+        log info "Prebuildvorgang DOTNET"
+        # runprebuild.sh starten:
+        ./runprebuild.sh
+
+        # Kompilieren mit oder ohne Logdatei
+        if [[ "$SETOSCOMPION" = "" || "$SETOSCOMPION" = "no" ]]; then
+            log info "DOTNET Standard Kompilierung Release."
             build_output=$(dotnet build -c Release OpenSim.sln)
         elif [[ $SETOSCOMPION = "yes" ]]; then
             log info "DOTNET Standard Kompilierung Release mit Logdatei."
             build_output=$(dotnet build -c Release OpenSim.sln /fileLogger /flp:logfile=opensimbuild.log /v:d)
         fi
 
-        # Ausgabe pruefen und nach Warnungen und Fehlern suchen
+        # Ausgabe prüfen und nach Warnungen und Fehlern suchen
         log info "Pruefe Build-Ergebnisse..."
         echo "$build_output"
 
-        warnings=$(echo "$build_output" | grep -E '^[0-9]+ Warning\(s\)$' | awk '{print $1}')
-        errors=$(echo "$build_output" | grep -E '^[0-9]+ Error\(s\)$' | awk '{print $1}')
+        # Zusätzliche Debugging-Ausgabe
+        echo "===== BEGIN Build Output ====="
+        echo "$build_output"
+        echo "===== END Build Output ====="
 
+        warnings=$(echo "$build_output" | grep -E 'Warning\(s\)' | awk '{print $1}')
+        errors=$(echo "$build_output" | grep -E 'Error\(s\)' | awk '{print $1}')
+
+        # Fehler und Warnungen überprüfen
         if [[ $warnings -eq 0 && $errors -eq 0 ]]; then
             log info "Build erfolgreich. 0 Warnungen, 0 Fehler."
         else
             log error "Build fehlgeschlagen: $warnings Warnung(en), $errors Fehler."
-            return 1
+            if [[ $errors -gt 0 ]]; then
+                log error "Fehler bei der Kompilierung. Beende Skript."
+                return 1
+            fi
         fi
 
         # AOT aktivieren oder deaktivieren
@@ -7651,6 +7799,7 @@ function oscompi() {
         fi
     fi
 }
+
 
 ## *  opensimgitcopy
 	# Diese Funktion kopiert OpenSimulator-Dateien aus einem Git-Repository in das angegebene Verzeichnis, wenn $MONEYCOPY auf "yes" gesetzt ist.
@@ -7691,7 +7840,8 @@ function moneygitcopy() {
 
 	if [[ $MONEYCOPY = "yes" ]]; then
 		log info "MONEYSERVER: MoneyServer wird vom GIT geholt"
-		git clone https://github.com/BigManzai/OpenSimCurrencyServer-2023 /$STARTVERZEICHNIS/OpenSimCurrencyServer-2023
+		git clone https://github.com/ManfredAabye/opensimcurrencyserver-dotnet.git /$STARTVERZEICHNIS/opensimcurrencyserver-dotnet-main
+		git clone 	
 	else
 		log error "MONEYSERVER: MoneyServer nicht vorhanden"
 	fi
@@ -7717,6 +7867,72 @@ function moneygitcopy21() {
 		git clone https://github.com/BigManzai/OpenSimCurrencyServer-2021 /$STARTVERZEICHNIS/OpenSimCurrencyServer-2021-master
 	else
 		#log error "MONEYSERVER: MoneyServer nicht vorhanden"
+		return 0;
+	fi
+	return 0
+}
+
+function moneygitcopy24() {
+	# Letzte Bearbeitung 13.12.2023
+	if [[ -z "$MONEYCOPY" || "$MONEYCOPY" = "no" ]]; then return; fi
+
+	if [[ $MONEYCOPY = "yes" ]]; then
+		log info "MONEYSERVER: MoneyServer wird vom GIT geholt"
+		git clone https://github.com/ManfredAabye/opensimcurrencyserver-dotnet.git /$STARTVERZEICHNIS/opensimcurrencyserver-dotnet
+	else
+		#log error "MONEYSERVER: MoneyServer nicht vorhanden"
+		return 0;
+	fi
+	return 0
+}
+
+function webRTCinstall() {
+    cd /opt
+
+    # Überprüfe, ob das Verzeichnis existiert
+    if [ ! -d "os-webrtc-janus" ]; then
+        git clone https://github.com/ManfredAabye/os-webrtc-janus.git os-webrtc-janus
+    else
+        echo "Das Repository 'os-webrtc-janus' ist bereits vorhanden."
+    fi
+
+    #cp -r /opt/os-webrtc-janus/Janus /opt/opensim/addon-modules
+    #cp -r /opt/os-webrtc-janus/WebRtcVoice /opt/opensim/addon-modules
+    #cp -r /opt/os-webrtc-janus/WebRtcVoiceRegionModule /opt/opensim/addon-modules
+    #cp -r /opt/os-webrtc-janus/WebRtcVoiceServiceModule /opt/opensim/addon-modules
+
+	cp -r /opt/os-webrtc-janus/ /opt/opensim/addon-modules/os-webrtc-janus
+
+	#cp -r /opt/os-webrtc-janus/prebuild-*.* /opt/opensim/addon-modules
+
+    cp -r /opt/os-webrtc-janus/WebRTC-Sandbox/OpenSim /opt/opensim/OpenSim
+    cp -r /opt/os-webrtc-janus/WebRTC-Sandbox/bin /opt/opensim/bin
+}
+
+function inventargitcopy() {
+	# Letzte Bearbeitung 23.12.2024
+	AvatarCopy="yes"
+
+	if [[ -z "$AvatarCopy" || "$AvatarCopy" = "no" ]]; then return; fi
+
+	if [[ $AvatarCopy = "yes" ]]; then
+		log info "INVENTAR: Inventar wird vom GIT geholt"
+
+		if [ ! -d "Ruth2" ]; then
+			git clone https://github.com/ManfredAabye/Ruth2.git /$STARTVERZEICHNIS/Ruth2
+		else
+        	echo "Das Repository 'Ruth2' ist bereits vorhanden."
+    	fi
+		if [ ! -d "Roth2" ]; then
+			git clone https://github.com/ManfredAabye/Roth2.git /$STARTVERZEICHNIS/Roth2
+		else
+        	echo "Das Repository 'Roth2' ist bereits vorhanden."
+    	fi
+
+		log info "INVENTAR: Inventar wird kopiert"
+		cp -r /$STARTVERZEICHNIS/Ruth2/Artifacts/IAR/*.iar /$STARTVERZEICHNIS/opensim/bin/Library
+		cp -r /$STARTVERZEICHNIS/Roth2/Artifacts/IAR/*.iar /$STARTVERZEICHNIS/opensim/bin/Library
+	else
 		return 0;
 	fi
 	return 0
@@ -7908,7 +8124,7 @@ function moneycopy() {
 	if [[ -z "$MONEYCOPY" || "$MONEYCOPY" = "no" ]]; then return; fi
 
 	if [[ $MONEYCOPY = "yes" ]]; then
-	MONEYSOURCE93="OpenSimCurrencyServer-2023"
+	MONEYSOURCE93="opensimcurrencyserver-dotnet-main"
 		if [ -d /$STARTVERZEICHNIS/$MONEYSOURCE93/ ]; then
 			log info "Money Server Kopiervorgang gestartet"
 			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE93/bin /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
@@ -7921,40 +8137,6 @@ function moneycopy() {
 			log info "Money Server Kopiervorgang gestartet"
 			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE93/bin /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
 			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE93/addon-modules /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
-		fi
-	else
-		log warn "Money Server wird nicht kopiert."
-	fi
-	return 0
-}
-
-## *  moneycopy
-	# Diese Funktion kopiert den MoneyServer (Waehrungsserver) und die Add-On-Module in das OpenSimulator-Verzeichnis,
-	# wenn $MONEYCOPY auf "yes" gesetzt ist.
-	#? Parameter:
-	# Keine
-	#? Rueckgabewert:
-	# Die Funktion gibt immer 0 zurueck.
-	#? Beispiel:
-	# moneycopy
-##
-function moneycopyalt() {
-	# Letzte Bearbeitung 13.12.2023
-	if [[ -z "$MONEYCOPY" || "$MONEYCOPY" = "no" ]]; then return; fi
-
-	if [[ $MONEYCOPY = "yes" ]]; then
-		if [ -d /$STARTVERZEICHNIS/$MONEYSOURCE/ ]; then
-			log info "Money Server Kopiervorgang gestartet"
-			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE/bin /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
-			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE/addon-modules /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
-			log line
-		else
-			# Entpacken und kopieren
-			log info "Money Server entpacken"
-			unzip "$MONEYZIP"
-			log info "Money Server Kopiervorgang gestartet"
-			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE/bin /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
-			cp -r /$STARTVERZEICHNIS/$MONEYSOURCE/addon-modules /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS
 		fi
 	else
 		log warn "Money Server wird nicht kopiert."
@@ -8065,10 +8247,17 @@ function bulletcopy() {
 
 	if [ "$ubuntuCodename" = "noble" ]; then
 	log info "entdeckt Ubuntu 24.04"
-	BULLETSOURCE="BulletSim/Ubuntu22" 
+	BULLETSOURCE="BulletSim/Ubuntu24" 
 	cp -r /$STARTVERZEICHNIS/BulletSim/* /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS/bin/lib64
 	bulletconfig $BULLETUBUNTU2404noble
 	fi
+
+	# if [ "$ubuntuCodename" = "noble" ]; then
+	# log info "entdeckt Ubuntu 24.04 es gibt noch keine Version fuer Ubuntu 24.04"
+	# BULLETSOURCE="BulletSim/Ubuntu18" 
+	# cp -r /$STARTVERZEICHNIS/BulletSim/* /$STARTVERZEICHNIS/$OPENSIMVERZEICHNIS/bin/lib64
+	# bulletconfig $BULLETUBUNTU2204jammy
+	# fi
 
 	return 0
 }
@@ -10540,8 +10729,96 @@ function installmariadb22() {
 	# MariaDB installieren:
 	sudo apt-get update
 	sudo apt-get -y install mariadb-server
+	# apt-get install mariadb-server
 
 	mariadb --version
+}
+
+# Install the MariaDB Server Ubuntu 24.04
+function installmariadb24() {
+	# Letzte Bearbeitung 01.10.2023
+	# MySQL stoppen wenn es laeuft:
+	sudo service mysql stop
+
+	# MariaDB installieren:
+	sudo apt-get update
+	sudo apt-get -y install mariadb-server
+	# sudo apt-get install mariadb-server
+
+	sudo systemctl enable mariadb
+	sudo systemctl restart mariadb
+
+	# MariaDB sichern:
+	# sudo mysql_secure_installation
+	# MariaDB starten:
+	# mariadb -u root -p
+
+	# MariaDB Upgrade:
+	# sudo mariadb-upgrade
+
+	# MariaDB loeschen:
+	# sudo apt remove --purge mariadb-server mariadb-client
+	# sudo apt autoremove
+
+	# List of all client commands:
+	# Note that all text commands must be first on line and end with ';'
+	# ?         (\?) Synonym for `help'.
+	# charset   (\C) Switch to another charset. Might be needed for processing binlog with multi-byte charsets.
+	# clear     (\c) Clear the current input statement.
+	# connect   (\r) Reconnect to the server. Optional arguments are db and host.
+	# delimiter (\d) Set statement delimiter.
+	# edit      (\e) Edit command with $EDITOR.
+	# ego       (\G) Send command to MariaDB server, display result vertically.
+	# exit      (\q) Exit mysql. Same as quit.
+	# go        (\g) Send command to MariaDB server.
+	# help      (\h) Display this help.
+	# nopager   (\n) Disable pager, print to stdout.
+	# notee     (\t) Don't write into outfile.
+	# nowarning (\w) Don't show warnings after every statement.
+	# pager     (\P) Set PAGER [to_pager]. Print the query results via PAGER.
+	# print     (\p) Print current command.
+	# prompt    (\R) Change your mysql prompt.
+	# quit      (\q) Quit mysql.
+	# rehash    (\#) Rebuild completion hash.
+	# sandbox   (\-) Disallow commands that access the file system (except \P without an argument and \e).
+	# source    (\.) Execute an SQL script file. Takes a file name as an argument.
+	# status    (\s) Get status information from the server.
+	# system    (\!) Execute a system shell command.
+	# tee       (\T) Set outfile [to_outfile]. Append everything into given outfile.
+	# use       (\u) Use another database. Takes database name as argument.
+	# warnings  (\W) Show warnings after every statement.
+
+	# Install MariaDB.
+	# console
+
+	# $ sudo apt install mariadb-server
+
+	# View the installed MariaDB version on your server.
+	# console
+
+	# $ mariadb --version
+
+	# Output:
+
+	# mariadb  Ver 15.1 Distrib 10.11.7-MariaDB, for debian-linux-gnu (x86_64) using  EditLine wrapper
+
+	# Enable the MariaDB system service to start at boot time.
+	# console
+
+	# $ sudo systemctl enable mariadb
+
+	# Start MariaDB on your server.
+	# console
+
+	# $ sudo systemctl start mariadb
+
+	# View the MariaDB service status to verify that it's running on your server.
+	# console
+
+	# $ sudo systemctl status mariadb
+
+	mariadb --version
+	sudo systemctl status mariadb
 }
 
 ## * monoinstall
@@ -11067,6 +11344,90 @@ function installubuntu22() {
 	deladvantagetools
 }
 
+function installubuntu24() {
+	# Letzte Bearbeitung 03.01.2024
+
+	# Ubuntu Pro Werbung abschalten:
+	# sudo dpkg-divert --divert /etc/apt/apt.conf.d/20apt-esm-hook.conf.bak --rename --local /etc/apt/apt.conf.d/20apt-esm-hook.conf
+
+	#Alles fuer den OpenSimulator ausser mono
+	iinstallnew screen
+	iinstallnew git
+	iinstallnew nant
+	iinstallnew libopenjp3d7
+	iinstallnew graphicsmagick
+	iinstallnew imagemagick
+	iinstallnew curl
+	iinstallnew php-cli
+	iinstallnew php-bcmath
+	iinstallnew dialog
+	iinstallnew at
+	iinstallnew mysqltuner
+	iinstallnew php-mysql
+	iinstallnew php-common
+	iinstallnew php-gd
+	iinstallnew php-pear
+	iinstallnew php-xmlrpc
+	iinstallnew php-curl
+	iinstallnew php-mbstring
+	iinstallnew php-gettext
+	iinstallnew php-fpm php
+	iinstallnew libapache2-mod-php
+	iinstallnew php-xml
+	iinstallnew php-imagick
+	iinstallnew php-cli
+	iinstallnew php-imap
+	iinstallnew php-opcache
+	iinstallnew php-soap
+	iinstallnew php-zip
+	iinstallnew php-intl
+	iinstallnew php-bcmath
+	iinstallnew unzip
+	iinstallnew php-mail
+	iinstallnew zip
+	iinstallnew screen
+	iinstallnew graphicsmagick
+	iinstallnew git
+	iinstallnew libopenjp3d7
+	iinstallnew crudini
+	iinstallnew iptables
+	iinstallnew fail2ban
+	iinstallnew apt-utils
+    iinstallnew libgdiplus
+	iinstallnew zlib1g-dev
+    iinstallnew libc6-dev
+	iinstallnew translate-shell
+	iinstallnew ubuntu-advantage-tools
+
+	if [ $insterweitert = "yes" ]; then
+		iinstallnew libldns-dev
+		iinstallnew libldns3
+		iinstallnew libjs-jquery-ui
+		iinstallnew libopenexr25
+		iinstallnew libmagickcore-6.q16-6-extra
+		iinstallnew libswscale-dev
+		iinstallnew php-twig
+		iinstallnew libavcodec58
+		iinstallnew libmagickwand-6.q16-6
+		iinstallnew libavutil56
+		iinstallnew imagemagick-6.q16
+		iinstallnew libswscale5
+		iinstallnew libmagickcore-6.q16-6
+		iinstallnew libavutil-dev
+		iinstallnew libswresample3
+		iinstallnew imagemagick-6-common
+		iinstallnew libavformat58
+		iinstallnew python2.7-minimal
+		iinstallnew python2.7
+		iinstallnew libavformat-dev
+		iinstallnew libavcodec-dev
+		iinstallnew libpython2.7-minimal
+		iinstallnew libpython2.7-stdlib
+		iinstallnew libswresample-dev
+	fi
+	deladvantagetools
+}
+
 function serverinstallfull() {
 	iinstallnew screen
 	iinstallnew git
@@ -11142,6 +11503,8 @@ function serverinstallfull() {
 	iinstallnew php-cli
 	iinstallnew php-bcmath
 }
+
+
 
 ## * upgrade18to22
 	# Übersicht der Abfragen:
@@ -11713,9 +12076,24 @@ function serverinstall22() {
 	# Letzte Bearbeitung 01.10.2023
 	linuxupgrade
 	installubuntu22
-	monoinstall20 # 22 gibt es nicht.
-	monoinstall22 # Upgrade monoistall20
+	#monoinstall20 # 22 gibt es nicht.
+	#monoinstall22 # Upgrade monoistall20
+	dotnetubuautomatik
 	installmariadb22
+	installphpmyadmin
+	ufwset
+	#installationhttps22
+	installfinish
+}
+
+function serverinstall24() {
+	# Letzte Bearbeitung 01.10.2023
+	linuxupgrade
+	installubuntu24
+	#monoinstall20 # 22 gibt es nicht.
+	#monoinstall22 # Upgrade monoistall20
+	dotnetubuautomatik
+	installmariadb24
 	installphpmyadmin
 	ufwset
 	#installationhttps22
@@ -12081,6 +12459,12 @@ function osbuilding() {
 
 	log line
 	sleep 3
+
+	# WebRTC Test 12.12.2024
+	webRTCinstall
+
+	# Inventar Test 23.12.2024
+	inventargitcopy
 
 	log info "Prebuild des neuen OpenSimulator starten"
 	setversion "$VERSIONSNUMMER"
@@ -20898,6 +21282,13 @@ function compilieren() {
 		bulletcopy
 	else
 		log error "BulletSim Verzeichnis existiert nicht"
+	fi
+
+	if [ ! -f "/$STARTVERZEICHNIS/" ]; then
+		# todo: Das ist nicht fertig und auch nicht korrekt.
+		inventargitcopy
+	else
+		log error "Inventar existiert nicht"
 	fi
 
 	# if [ ! -f "/$STARTVERZEICHNIS/$OSSEARCHCOPY/" ]; then
