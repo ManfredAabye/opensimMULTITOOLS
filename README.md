@@ -9,7 +9,7 @@ System requirements for creating OpenSimulator:
 
 DOTNET 8.0.x https://dotnet.microsoft.com/en-us/download/dotnet/8.0
 
-Visual Tudio 22 Community https://visualstudio.microsoft.com/de/vs/community/
+Visual Studio 22 Community https://visualstudio.microsoft.com/de/vs/community/
 
 Git https://git-scm.com/downloads/win
 
