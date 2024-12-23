@@ -13,6 +13,14 @@ Visual Tudio 22 Community https://visualstudio.microsoft.com/de/vs/community/
 
 Git https://git-scm.com/downloads/win
 
+Start the OpenSimulator with "dotnet OpenSim.dll".
+
+In the OpenSim console, type "create user" and enter the name "opensim" "avatar" a password 123, or whatever you want.
+
+In the console, type "load oar terrain.oar" to get a finished land.
+
+Start Firestorm Viewer and select create new grid in the OpenSim settings, paste the address http://127.0.0.1:9000" and have fun.
+
 ## Linux
 Ubuntu is one of the most popular Linux distributions and has good compatibility with other Linux versions, 
 
