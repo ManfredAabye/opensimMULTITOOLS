@@ -3,6 +3,12 @@ Bash and Batch Tools for OpenSimulator
 
 ## opensimMULTITOOLS-Mini 0.01
 
+Unpack your OpenSimulator and rename it, for example sim1. 
+
+Then copy all required configurations from *.ini.example to *.ini. 
+
+Now start osmmtools.sh with "bash osmmtools.sh start".
+
      start - start opensimulator.
      stop - stop opensimulator.
      restart - stop opensimulator and start opensimulator.
