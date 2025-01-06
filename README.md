@@ -8,6 +8,11 @@ Bash and Batch Tools for OpenSimulator
      restart - stop_opensimulator and start_opensimulator
      check_screens - check_screens
 
+crontab -e
+
+     # Restart in case of failure.
+     */05 * * * * bash /opt/osmmtools.sh check_screens
+
 ## Windows
 Start the batch file and press Enter for everything until it is finished.
 
