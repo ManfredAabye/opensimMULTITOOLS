@@ -1,5 +1,13 @@
 # opensimMULTITOOLS
 Bash and Batch Tools for OpenSimulator 
+
+## opensimMULTITOOLS-Mini 0.01
+
+     start - start_opensimulator
+     stop - stop_opensimulator
+     restart - stop_opensimulator and start_opensimulator
+     check_screens - check_screens
+
 ## Windows
 Start the batch file and press Enter for everything until it is finished.
 
