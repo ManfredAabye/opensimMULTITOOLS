@@ -3,10 +3,10 @@ Bash and Batch Tools for OpenSimulator
 
 ## opensimMULTITOOLS-Mini 0.01
 
-     start - start_opensimulator
-     stop - stop_opensimulator
-     restart - stop_opensimulator and start_opensimulator
-     check_screens - check_screens
+     start - start opensimulator.
+     stop - stop opensimulator.
+     restart - stop opensimulator and start opensimulator.
+     check_screens - Restart in case of failure.
 
 crontab -e
 
