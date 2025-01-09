@@ -44,8 +44,14 @@ Dieses Skript enthält verschiedene Verwaltungsbefehle für OpenSimulator. Verf�
 - **cachedel** – Löscht den Cache.
 - **clean_restart** – Führt einen Neustart mit Cache-Löschung durch.
 - **ifrunning** – Prüft, ob OpenSimulator läuft.
+- **check_screens** – Prüft, ob OpenSimulator läuft und startet fehlende Teile neu.
 - **logdel** – Löscht Log-Dateien.
 - **help** – Zeigt eine Hilfsübersicht an.
+
+- crontab -e
+
+     # Restart in case of failure.
+     */05 * * * * bash /opt/osmmtools.sh check_screens
 
 ## Nutzung
 Führe die Skripte mit folgendem Befehl aus:
