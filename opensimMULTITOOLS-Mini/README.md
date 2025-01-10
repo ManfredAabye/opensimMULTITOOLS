@@ -4,7 +4,7 @@ Dieses Repository enthält mehrere Bash-Skripte zur Verwaltung, Installation und
 
 ## Übersicht der Skripte
 
-### osmbuilder.sh unvertig nur zur sicherung hier.
+### osmbuilder.sh noch nicht ganz fertig, nur zur Sicherung hier.
 Dieses Skript dient zur Automatisierung des Build-Prozesses von OpenSimulator. Verfügbare Befehle:
 
 - **autobuild** – Führt den gesamten automatisierten Build-Prozess aus.
@@ -17,7 +17,7 @@ Dieses Skript dient zur Automatisierung des Build-Prozesses von OpenSimulator. V
 - **build_opensim** – Baut OpenSimulator.
 - **del_opensim** – Löscht eine bestehende OpenSimulator-Installation.
 
-### osminstaller.sh unvertig nur zur sicherung hier.
+### osminstaller.sh noch nicht ganz fertig, nur zur Sicherung hier.
 Dieses Skript hilft bei der Installation und Konfiguration von OpenSimulator. Verfügbare Befehle:
 
 - **osconfiginstall** – Installiert die grundlegende OpenSimulator-Konfiguration.
