@@ -1,5 +1,5 @@
 #!/bin/bash
-# opensimMULTITOOLS-Builder 0.01
+# opensimMULTITOOLS-Builder 0.02
 
 HOME_PATH=$(pwd)
 echo Pfad: "$HOME_PATH" # Debug
@@ -29,7 +29,7 @@ function warnings() {
     exit
 }
 
-function clone_opensim() {
+function clone_opensim_develope() {
     # Fresh OpenSim version
     if [ ! -d "opensim" ]; then
         git clone https://github.com/opensim/opensim.git opensim
@@ -37,10 +37,19 @@ function clone_opensim() {
     return 0
 }
 
-function copy_opensim0930() {
+function clone_opensim_stable_source() {
+    # Stable OpenSim version  
+    wget http://opensimulator.org/dist/opensim-0.9.3.0-source.zip 
+    unzip opensim-0.9.3.0-source.zip
+    mv opensim-0.9.3.0-source opensim
+    rm opensim-0.9.3.0-source.zip
+    return 0
+}
+function clone_opensim_stable_binary() {
     # Stable OpenSim version
     wget http://opensimulator.org/dist/opensim-0.9.3.0.zip
     unzip opensim-0.9.3.0.zip
+    mv opensim-0.9.3.0 opensim
     rm opensim-0.9.3.0.zip
     return 0
 }
@@ -96,19 +105,18 @@ function build_opensim() {
 
 function del_opensim() {
     rm -rf "$HOME_PATH"/opensim
+    exit
+}
+
+function del_all() {
+    rm -rf "$HOME_PATH"/opensim
     rm -rf "$HOME_PATH"/opensimcurrencyserver
     rm -rf "$HOME_PATH"/opensim-ossl-example-scripts
     exit
 }
 
-function help() {
-    echo "opensimMULTITOOLS-Builder 0.01"
-    echo "Usage: $0 warnings|clone_opensim|prebuild_opensim|build_opensim|copy_opensim0930|clone_moneyserver|clone_examplescripts"
-    exit
-}
-
-function autobuild() {
-    clone_opensim
+function autobuild_develope() {
+    clone_opensim_develope
     clone_moneyserver
     clone_examplescripts
 
@@ -118,18 +126,63 @@ function autobuild() {
     exit
 }
 
+function autobuild_stable_source() {
+    clone_opensim_stable_source
+    clone_moneyserver
+    clone_examplescripts
+
+    prebuild_opensim
+    build_opensim
+
+    exit
+}
+
+function autobuild_stable_binary() {
+    clone_opensim_stable_binary
+    clone_examplescripts
+    exit
+}
+
+function help() {
+    echo "opensimMULTITOOLS-Builder 0.01"
+    echo "Usage: $0 
+        autobuild_develope
+        autobuild_stable_binary
+        autobuild_stable_source
+        build_opensim
+        clone_examplescripts
+        clone_moneyserver
+        clone_opensim_develope
+        clone_opensim_stable
+        del_all
+        del_opensim
+        prebuild_opensim
+        warnings"
+    exit
+}
+
 # bash osmbuilder.sh autobuild
 # bash osmbuilder.sh del_opensim
 
 case $KOMMANDO in
-    autobuild) autobuild ;;
-    warnings) warnings ;;
-    clone_opensim) clone_opensim ;;
-    copy_opensim0930) copy_opensim0930 ;;
-    clone_moneyserver) clone_moneyserver ;;
-    prebuild_opensim) prebuild_opensim ;;
-    clone_examplescripts) clone_examplescripts ;;
+    autobuild_develope) autobuild_develope ;;
+    autobuild_stable_binary) autobuild_stable_binary ;;
+    autobuild_stable_source) autobuild_stable_source ;;
     build_opensim) build_opensim ;;
+    clone_examplescripts) clone_examplescripts ;;
+    clone_moneyserver) clone_moneyserver ;;
+    clone_opensim_develope) clone_opensim_develope ;;
+    clone_opensim_stable) clone_opensim_stable ;;
+    del_all) del_all ;;
     del_opensim) del_opensim ;;
+    prebuild_opensim) prebuild_opensim ;;
+    warnings) warnings ;;
     *) help ;;
 esac
+
+# Test: Erstelle eine stabile binary-opensim Version die direkt startbar ist.
+# Test: Erstelle eine stabile stable-opensim Version die direkt startbar ist.
+# Test: Erstelle ein Grid mit einer Region.
+# Test: Erstelle ein HyperGrid mit einer Region.
+# Test: Erstelle ein Standalone OpenSimulator mit einer Region.
+# Test: Erstelle ein Standalone OpenSimulator mit einer Region und Geld.
