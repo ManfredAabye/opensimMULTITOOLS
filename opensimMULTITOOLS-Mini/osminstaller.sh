@@ -13,6 +13,79 @@ function dummy() {
     # Das hat keine Funktion es ist nur ein Platzhalter.
     Robust=""
 }
+# ###########################################
+# Konfigurationen Bearbeitungsfunktionen.
+# ###########################################
+
+# Edit a configuration file with a key value pair.
+#
+# Parameters:
+#   $1 - Section name
+#   $2 - Key name
+#   $3 - Value for the key
+#   $4 - Filename of the configuration file
+#
+# Returns:
+#   0 if successful
+#   1 if an error occurs
+function confedit() {
+    local section="$1"
+    local key="$2"
+    local value="$3"
+    local filename="$4"
+    local tempconf
+
+    if [ -z "$section" ] || [ -z "$key" ] || [ -z "$value" ] || [ -z "$filename" ]; then
+    echo "Error: Some parameters were null or empty." >&2
+    return 1
+    fi
+
+    # Create a temporary file with a unique name
+    tempconf=$(mktemp)
+    if [ -z "$tempconf" ]; then
+    echo "Error: Could not create temporary file." >&2
+    return 1
+    fi
+
+    # Copy the configuration file to the temporary file
+    cp -p "$filename" "$tempconf"
+
+    # Normalize line spacing in the temporary file
+    # Remove empty lines
+    local CONF
+    CONF=$(sed '/^$/d' "$tempconf" | sed '2,$ s/^\[/\n\[/g')"\n\n"
+
+    # If the section does not exist, add it
+    if ! printf "%s" "$CONF" | grep -qF "[$section]" ; then
+    CONF="${CONF}[$section]\n$key = $value\n\n"
+    else
+    # If the key does not exist in the section, add it
+    if ! printf "%s" "$CONF" | sed -n "/^\[$section\]$/,/^$/p" | grep -q "^$key" ; then
+        CONF=$(printf "%s" "$CONF" | sed "/^\[$section\]$/,/^$/ s/^$/$key = $value\n/")
+    else
+        # If the key exists in the section, update its value
+        CONF=$(printf "%s" "$CONF" | sed "/^\[$section\]$/,/^$/ s/^$key\s*=.\+/$key = $value/")
+    fi
+    fi
+
+    # Write the updated configuration to the temporary file
+    if ! printf "%s" "$CONF" > "$tempconf"; then
+    echo "Error: Could not write to temporary file." >&2
+    rm -f "$tempconf"
+    return 1
+    fi
+
+    # Replace the original configuration file with the temporary file
+    if ! mv "$tempconf" "$filename"; then
+    echo "Error: Could not move temporary file to target location." >&2
+    rm -f "$tempconf"
+    return 1
+    fi
+}
+
+# ###########################################
+# Konfigurationen Bearbeitungsfunktionen ende.
+# ###########################################
 
 function osmmconfig() {
     echo "Wie viele Simulator-Verzeichnisse möchten Sie anlegen? (1-99)" 
@@ -423,16 +496,21 @@ function architectur() {
 }
 
 function configuration_simulatoropen() {
+    cd "$HOME_PATH/opensim/bin" || exit
+
+    # Prüfen, ob die Konfigurationsdatei existiert und wenn nicht kopieren aus OpenSim.ini.example zu OpenSim.ini
+    if [ ! -f "OpenSim.ini" ]; then
+        if [ -f "OpenSim.ini.example" ]; then
+            cp OpenSim.ini.example OpenSim.ini
+        else
+            echo "Fehler: OpenSim.ini.example existiert nicht!"
+            exit 1
+        fi
+    fi
 
     # Benutzer nach der IP-Adresse fragen (Standard: 127.0.0.1)
     read -rp "Welche IP-Adresse wollen Sie nutzen? (Standard: 127.0.0.1) " IPadress
     IPadress=${IPadress:-127.0.0.1}
-
-    # Prüfen, ob die Konfigurationsdatei existiert
-    if [ ! -f "$CONFIG_FILE" ]; then
-        echo "Fehler: Konfigurationsdatei $CONFIG_FILE existiert nicht!"
-        exit 1
-    fi
 
     # Simulatoren aus der Konfigurationsdatei auslesen
     while IFS="=" read -r key value; do
@@ -444,33 +522,26 @@ function configuration_simulatoropen() {
                 if [ -d "$sim_path" ]; then
                     echo "Konfiguriere $key unter $sim_path ..."
 
-                    # Prüfen, ob OpenSim.ini.example existiert
-                    if [ -f "$sim_path/OpenSim.ini.example" ]; then
-                        cp "$sim_path/OpenSim.ini.example" "$sim_path/OpenSim.ini"
-                    else
-                        echo "Warnung: $sim_path/OpenSim.ini.example nicht gefunden!"
-                    fi
-
                     # Weitere Konfigurationsdateien kopieren
                     for cfg in osslEnable.ini FlotsamCache.ini StandaloneCommon.ini GridCommon.ini; do
-                        if [ -f "$sim_path/config-include/${cfg}.example" ]; then
+                        if [ -f "$sim_path/config-include/${cfg}.example" ] && [ ! -f "$sim_path/config-include/$cfg" ]; then
                             cp "$sim_path/config-include/${cfg}.example" "$sim_path/config-include/$cfg"
                         fi
                     done
 
                     # BaseHostname anpassen
-                    sed -i "s/BaseHostname = \"127.0.0.1\"/BaseHostname = \"$IPadress\"/g" "$sim_path/OpenSim.ini"
+                    confedit "Const" "BaseHostname" "$IPadress" "$sim_path/OpenSim.ini"
 
                     # Portnummer berechnen (sim1=9010, sim2=9020, ...)
                     sim_number="${key//Simulator/}"
                     port=$((9000 + sim_number * 10))
-                    sed -i "s/PublicPort = \"9000\"/PublicPort = \"$port\"/g" "$sim_path/OpenSim.ini"
+                    confedit "Const" "PublicPort" "$port" "$sim_path/OpenSim.ini"
 
                     # Physik und Meshing aktivieren
-                    sed -i "s/; meshing = Meshmerizer/meshing = Meshmerizer/g" "$sim_path/OpenSim.ini"
-                    sed -i "s/; physics = BulletSim/physics = BulletSim/g" "$sim_path/OpenSim.ini"
-                    sed -i "s/; DefaultScriptEngine = \"YEngine\"/DefaultScriptEngine = \"YEngine\"/g" "$sim_path/OpenSim.ini"
-                    sed -i "s/; InitialTerrain = \"pinhead-island\"/InitialTerrain = \"flat\"/g" "$sim_path/OpenSim.ini"
+                    confedit "Const" "meshing" "Meshmerizer" "$sim_path/OpenSim.ini"
+                    confedit "Const" "physics" "BulletSim" "$sim_path/OpenSim.ini"
+                    confedit "Const" "DefaultScriptEngine" "YEngine" "$sim_path/OpenSim.ini"
+                    confedit "Const" "InitialTerrain" "flat" "$sim_path/OpenSim.ini"
 
                     # Architektur setzen (Standalone, Grid, etc.)
                     architectur "Standalone" "$sim_path"
@@ -485,7 +556,9 @@ function configuration_simulatoropen() {
     echo "Konfiguration abgeschlossen."
 }
 
-function configuration_simulatorGridopen() {
+# architectur Standalone $sim_path
+
+function configuration_simulatorGridopen1() {
 # region Grid
     # Benutzer nach der IP-Adresse fragen (Standard: 127.0.0.1)
     read -rp "Welche IP-Adresse wollen Sie nutzen? (Standard: 127.0.0.1) " IPadress
@@ -547,6 +620,68 @@ function configuration_simulatorGridopen() {
 
     echo "Konfiguration abgeschlossen."
 }
+function configuration_simulatorGridopen() {
+    cd "$HOME_PATH/opensim/bin" || exit
+
+    # Prüfen, ob die Konfigurationsdatei existiert und wenn nicht kopieren aus OpenSim.ini.example zu OpenSim.ini
+    if [ ! -f "OpenSim.ini" ]; then
+        if [ -f "OpenSim.ini.example" ]; then
+            cp OpenSim.ini.example OpenSim.ini
+        else
+            echo "Fehler: OpenSim.ini.example existiert nicht!"
+            exit 1
+        fi
+    fi
+
+    # Benutzer nach der IP-Adresse fragen (Standard: 127.0.0.1)
+    read -rp "Welche IP-Adresse wollen Sie nutzen? (Standard: 127.0.0.1) " IPadress
+    IPadress=${IPadress:-127.0.0.1}
+
+    # Simulatoren aus der Konfigurationsdatei auslesen
+    while IFS="=" read -r key value; do
+        case "$key" in
+            Simulator*)
+                sim_path=$(echo "$value" | tr -d '"')
+
+                # Prüfen, ob der Simulator-Ordner existiert
+                if [ -d "$sim_path" ]; then
+                    echo "Konfiguriere $key unter $sim_path ..."
+
+                    # Weitere Konfigurationsdateien kopieren
+                    for cfg in osslEnable.ini FlotsamCache.ini StandaloneCommon.ini GridCommon.ini; do
+                        if [ -f "$sim_path/config-include/${cfg}.example" ] && [ ! -f "$sim_path/config-include/$cfg" ]; then
+                            cp "$sim_path/config-include/${cfg}.example" "$sim_path/config-include/$cfg"
+                        fi
+                    done
+
+                    # BaseHostname anpassen
+                    confedit "Const" "BaseHostname" "$IPadress" "$sim_path/OpenSim.ini"
+
+                    # Portnummer berechnen (sim1=9010, sim2=9020, ...)
+                    sim_number="${key//Simulator/}"
+                    port=$((9000 + sim_number * 10))
+                    confedit "Const" "PublicPort" "$port" "$sim_path/OpenSim.ini"
+
+                    # Physik und Meshing aktivieren
+                    confedit "Const" "meshing" "Meshmerizer" "$sim_path/OpenSim.ini"
+                    confedit "Const" "physics" "BulletSim" "$sim_path/OpenSim.ini"
+                    confedit "Const" "DefaultScriptEngine" "YEngine" "$sim_path/OpenSim.ini"
+                    confedit "Const" "InitialTerrain" "flat" "$sim_path/OpenSim.ini"
+
+                    # Architektur setzen (Standalone, Grid, etc.)
+                    architectur "Grid" "$sim_path"
+
+                else
+                    echo "Warnung: Verzeichnis $sim_path existiert nicht!"
+                fi
+            ;;
+        esac
+    done < "$CONFIG_FILE"
+
+    echo "Konfiguration abgeschlossen."
+}
+
+
 
 function configuration_simulatorGridHypergridopen() {
     # Benutzer nach der IP-Adresse fragen (Standard: 127.0.0.1)

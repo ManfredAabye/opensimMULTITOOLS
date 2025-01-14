@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# opensimMULTITOOLS-Mini 0.02
+# opensimMULTITOOLS-Mini 0.03
 
 HOME_PATH=$(pwd)
 CONFIG_FILE_NAME="Gridconfig.cfg"
@@ -102,6 +102,19 @@ function start_opensimulator() {
             fi
         fi
     done
+}
+
+function start_standalone() {
+    cd "$HOME_PATH"/opensim/bin || exit
+    screen -fa -S OpenSim -d -U -m dotnet dotnet OpenSim.dll
+    cd "$HOME_PATH" || exit
+    screen -ls
+    exit
+}
+
+function stop_standalone() {
+    screen -S "OpenSim" -p 0 -X eval "stuff 'shutdown'^M"
+    exit
 }
 
 function stop_opensimulator() {
@@ -228,6 +241,8 @@ function help() {
 case $KOMMANDO in
     start) start_opensimulator ;;
     stop) stop_opensimulator ;;
+    start_standalone) start_standalone ;;
+    stop_standalone) stop_opensimulator ;;
     restart) stop_opensimulator; sleep 10; echo""; start_opensimulator ;;
     cachedel) cachedel ;;
     clean_restart) stop_opensimulator; sleep 10; cachedel; start_opensimulator ;;
