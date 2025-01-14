@@ -1,7 +1,7 @@
 # opensimMULTITOOLS
 Bash and Batch Tools for OpenSimulator 
 
-## opensimMULTITOOLS-Mini 0.01
+## opensimMULTITOOLS-Mini 0.03
 
 Unpack your OpenSimulator and rename it, for example sim1. 
 
